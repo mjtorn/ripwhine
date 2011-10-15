@@ -4,16 +4,27 @@ class Interface(object):
     """Handles interfacing with the user
     """
 
+    def __init__(self):
+        """Set the menu items and actions
+        """
+
+        # self.print_menu is for testing ;)
+        self.items = (
+            (0, 'print menu'),
+            (9, 'exit'),
+        )
+
+        self.actions = (
+            (0, self.print_menu),
+            (9, lambda: False),
+        )
+
     def print_menu(self):
         """Present the options to the user
         """
 
-        ## Start off easy
-        menu = """
-        1. exit
-        """
-
-        print menu
+        for item in self.items:
+            print '%d. %s' % item
 
     def handle_input(self):
         """Read user input, validate, execute. Return True if more loops required
@@ -22,8 +33,12 @@ class Interface(object):
         action = raw_input('>>> ')
 
         if action.isdigit():
-            if int(action) == 1:
-                return False
+            action = int(action)
+            if dict(self.items).has_key(action):
+                ## Probably not a good interface
+                retval = dict(self.actions)[action]()
+                if retval is not None:
+                    return retval
 
         return True
 
