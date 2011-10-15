@@ -95,13 +95,8 @@ class Identify(object):
 
             sector_start = int(sector_start)
 
-            ## Some googling says we need to add 150, but adding
-            ## nothing yields the same id. Unintelligible.
             # --toc-offset does not fix beginning, so add manually
-            #sectors.append(sector_start + 150)
-
-            ## Add the sectors as-is to be safe
-            sectors.append(sector_start)
+            sectors.append(sector_start + 150)
 
         return sectors
 
