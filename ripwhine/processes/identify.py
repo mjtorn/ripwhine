@@ -6,12 +6,8 @@ import logging
 
 import multiprocessing
 
-logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    logger.addHandler(logging.StreamHandler())
-
-import requests
+import musicbrainz2.disc as mbdisc
+import musicbrainz2.webservice as mbws
 
 import subprocess
 
@@ -19,24 +15,14 @@ import sys
 
 import traceback
 
-USER_AGENT = 'ripwhine/0.1'
-FREEDB_URL = 'http://www.freedb.org/freedb/%s/%s'
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
 
-GENRES = (
-    'data',
-    'rock',
-    'soundtrack',
-    'misc',
-    'classical',
-    'new age',
-    'country',
-    'jazz',
-    'reggae',
-    'folk',
-    'blues',
-)
-
-IDENTIFY_CMD = 'cdparanoia -Q'
+## MusicBrainz needs some setting up
+service = mbws.WebService()
+query = mbws.Query(service)
 
 class Identify(object):
     """Process persisting to do identifys on command
@@ -68,88 +54,67 @@ class Identify(object):
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
-    @classmethod
-    def parse_cdparanoia(self, output):
-        """Take the cdparanoia output and parse it for freedb
-        """
-
-        output = output.strip()
-        lines = []
-        in_tracks = False
-        for line in output.splitlines():
-            if in_tracks:
-                lines.append(line)
-
-            if line.startswith('='):
-                in_tracks = True
-            elif line.startswith('TOTAL'):
-                break
-
-        sectors = []
-        for line in lines:
-            split_line = line.split()
-            if len(split_line) == 8:
-                track_num, sector_end, time_end, sector_start, time_start, copy, pre, ch = split_line
-            else:
-                sector_start = split_line[1]
-
-            sector_start = int(sector_start)
-
-            # --toc-offset does not fix beginning, so add manually
-            sectors.append(sector_start + 150)
-
-        return sectors
-
-    @classmethod
-    def get_freedb(self, disc_id):
-        """Hit the db
-        """
-
-        headers = {
-            'User-Agent': USER_AGENT,
-        }
-
-        found = False
-        for genre in GENRES:
-            url = FREEDB_URL % (genre, disc_id)
-
-            res = requests.get(url, headers=headers)
-
-            if res.status_code == requests.codes.ok:
-                # Some entries are sometimes empty?
-                if res.content:
-                    found = True
-                    break
-
-        if found:
-            return url, res.content
-
-        return None, None
-
     def identify(self):
         """Drrn drrn
         """
 
-        ## cdparanoia talks to stderr
-        output = subprocess.Popen(IDENTIFY_CMD.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if output.returncode:
-            logger.error('[FAIL] (%d) %s' % (output.returncode, IDENTIFY_CMD))
+        try:
+            disc = mbdisc.readDisc()
+        except mbdisc.DiscError, e:
+            logger.error('[FAIL] %s' % e)
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
 
-        sectors = self.parse_cdparanoia(output.stderr.read())
-
-        disc_id, disc_len = cddbid.discid(sectors)
+        disc_id = disc.getId()
+        disc_uuid = disc.getId()
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
-        freedb_url, freedb_output = self.get_freedb(disc_id)
-        logger.info('[SUCCESS] %s' % freedb_url)
-        if freedb_output is None:
+        try:
+            release_filter = mbws.ReleaseFilter(discId=disc_id)
+            releases = query.getReleases(release_filter)
+        except mbws.WebServiceError, e:
+            logger.error('[FAIL] %s' % e)
+            self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
+
+            return
+
+        if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
             return
+        elif len(releases) > 1:
+            logger.warn('[DISC] Got %d releases, running with the first one!' % len(releases))
+
+        ## Use the first release
+        release = releases[0].release
+
+        ## Need to get additional data separately
+        try:
+            # releaseEvents required to get year
+            release_includes = mbws.ReleaseIncludes(artist=True, tracks=True, releaseEvents=True)
+
+            release = query.getReleaseById(release.getId(), release_includes)
+        except mbws.WebServiceError, e:
+            logger.error('[FAIL] %s' % e)
+            self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
+
+            return
+
+        ## Unlike the mb example code, disregard different track artists
+        track_num = 1
+        for track in release.tracks:
+            formatted_track_num = '%2d' % track_num
+
+            year = release.getEarliestReleaseDate()
+            year = year.split('-')[0] # disregard the exact date
+
+            track_tuple = (release.artist.name, year, release.title, formatted_track_num, track.title)
+
+            track_num += 1
+
+            print track_tuple
 
         self.interface.queue_to_identify_interface.send('FINISHED_IDENTIFY')
 
