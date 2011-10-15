@@ -6,8 +6,10 @@ import multiprocessing
 
 import time
 
-logger = multiprocessing.log_to_stderr()
+logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
 
 def do_sleep():
     """Process target for sleeping
