@@ -41,7 +41,7 @@ class Interface(object):
 
         if dict(self.items).has_key(action):
             ## Probably not a good interface
-            retval = dict(self.actions)[action]()
+            retval = dict(self.actions)[action](self)
             if retval is not None:
                 return retval
 
