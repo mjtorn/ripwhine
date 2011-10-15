@@ -39,7 +39,7 @@ class Rip(object):
         logger.info('Ripper process started')
         while True:
             command = self.interface.queue_to_rip_interface.recv()
-            logger.info('Ripper received: %s' % command)
+            logger.info('Ripper received: %s' % str(command))
 
             if dict(self.actions).has_key(command):
                 try:
