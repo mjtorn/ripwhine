@@ -3,7 +3,11 @@
 
 import sys
 
+from ripwhine.interface import Interface
+
 def main(args):
+    interface = Interface()
+    interface.run()
     return 0
 
 if __name__ == '__main__':
