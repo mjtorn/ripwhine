@@ -13,6 +13,10 @@ if not logger.handlers:
 
 import subprocess
 
+import sys
+
+import traceback
+
 IDENTIFY_CMD = 'cdparanoia -Q'
 
 class Identify(object):
@@ -39,7 +43,11 @@ class Identify(object):
             logger.info('Identify received: %s' % command)
 
             if dict(self.actions).has_key(command):
-                dict(self.actions)[command]()
+                try:
+                    dict(self.actions)[command]()
+                except Exception, e:
+                    logger.error('[FAIL] %s' % e)
+                    logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
     @classmethod
     def parse_cdparanoia(self, output):

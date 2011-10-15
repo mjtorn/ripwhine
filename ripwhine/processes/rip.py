@@ -11,6 +11,10 @@ if not logger.handlers:
 
 import subprocess
 
+import sys
+
+import traceback
+
 ## FIXME: replace with real ripping cmd ;)
 RIP_CMD = 'sleep 3'
 
@@ -38,7 +42,11 @@ class Rip(object):
             logger.info('Ripper received: %s' % command)
 
             if dict(self.actions).has_key(command):
-                dict(self.actions)[command]()
+                try:
+                    dict(self.actions)[command]()
+                except Exception, e:
+                    logger.error('[FAIL] %s' % e)
+                    logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
     def start_rip(self):
         """Drrn drrn
