@@ -49,6 +49,7 @@ class Rip(object):
         logger.info('Finished rip')
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
+        self.interface.queue_to_encode.send('START_ENCODE')
 
 def start_rip_process(interface):
     rip = Rip(interface)
