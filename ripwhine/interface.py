@@ -39,9 +39,25 @@ class Interface(object):
         self.queue_to_encode, self.queue_to_encode_interface = multiprocessing.Pipe()
         self.queue_to_identify, self.queue_to_identify_interface = multiprocessing.Pipe()
 
+        # Our current disc
+        self.track_tuples = None
+
     def print_menu(self):
         """Present the options to the user
         """
+
+        if self.track_tuples:
+            artist, year, disc = self.track_tuples[0][:3]
+            heading = '%s - %s (%s)' % (artist, disc, year)
+
+            print heading
+
+            for track in self.track_tuples:
+                print ' * %s. %s' % (track[3], track[4])
+        else:
+            print '*** NO DISC ***'
+
+        print
 
         for item in self.items:
             print '%s. %s' % item
@@ -83,7 +99,16 @@ class Interface(object):
             if self.queue_to_encode.poll():
                 logger.info('Received from encoder: %s' % self.queue_to_encode.recv())
             if self.queue_to_identify.poll():
-                logger.info('Received from identify: %s' % self.queue_to_identify.recv())
+                from_identify = self.queue_to_identify.recv()
+                logger.info('Received from identify: %s' % from_identify)
+
+                if from_identify == 'FINISHED_IDENTIFY':
+                    self.track_tuples = self.queue_to_identify.recv()
+                    if not isinstance(self.track_tuples, list):
+                        logger.error('Invalid return value type from identify!')
+                        logger.error('%s' % self.track_tuples)
+
+                        self.track_tuples = None
 
         self.rip_process.terminate()
         self.encode_process.terminate()
