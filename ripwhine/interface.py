@@ -1,6 +1,6 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
-from ripwhine import actions
+from ripwhine import actions, processes
 
 import multiprocessing
 
@@ -22,11 +22,13 @@ class Interface(object):
         # Some of these are for testing
         self.items = (
             ('s', 'sleep'),
+            ('r', 'rip'),
             ('q', 'exit'),
         )
 
         self.actions = (
             ('s', actions.sleep_process),
+            ('r', actions.start_rip),
             ('q', lambda interface: False),
         )
 
@@ -61,10 +63,19 @@ class Interface(object):
         """Work-horse, nay, pwny
         """
 
+        # Start the ripper listener
+        self.rip_process = processes.start_rip_process(self)
+
         in_loop = True
         while in_loop:
             self.print_menu()
             in_loop = self.handle_input()
+
+            ## DEBUG
+            if self.queue_to_rip.poll():
+                logger.info('Received from ripper: %s' % self.queue_to_rip.recv())
+
+        self.rip_process.terminate()
 
 # EOF
 
