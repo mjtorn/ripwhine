@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
-DEFAULT_DIR = '/tmp/'
+DEFAULT_DIR = os.path.join(os.path.expanduser('~'), 'music')
 
 class Interface(object):
     """Handles interfacing with the user
