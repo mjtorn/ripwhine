@@ -15,8 +15,12 @@ import sys
 
 import traceback
 
-## FIXME: replace with real ripping cmd ;)
-RIP_CMD = 'sleep 0.1'
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
+
+RIP_CMD = ['cdparanoia', '-X']
 
 class Rip(object):
     """Process persisting to do rips on command
@@ -70,6 +74,23 @@ class Rip(object):
             logger.info('Created %s' % path_to_disc)
 
         self.path_to_disc = path_to_disc
+
+    def rip_track(self, track_data):
+        """Rip one track
+        """
+
+        ## Num and name
+        filename = '%s. %s.wav' % track_data
+
+        wav_destination = os.path.join(self.path_to_disc, filename)
+
+        cmd = RIP_CMD[:]
+        cmd.append(track_data[0])
+        cmd.append(wav_destination)
+
+        retval = subprocess.call(cmd)
+
+        return retval
 
     def start_rip(self):
         """Drrn drrn
