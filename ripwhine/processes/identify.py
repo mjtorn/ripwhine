@@ -120,7 +120,7 @@ class Identify(object):
             track_tuples.append(track_tuple)
 
         self.interface.queue_to_identify_interface.send('FINISHED_IDENTIFY')
-        self.interface.queue_to_identify_interface.send(track_tuples)
+        self.interface.queue_to_identify_interface.send(tuple(track_tuples))
 
 def start_identify_process(interface):
     identify = Identify(interface)
