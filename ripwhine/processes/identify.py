@@ -11,11 +11,30 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
+import requests
+
 import subprocess
 
 import sys
 
 import traceback
+
+USER_AGENT = 'ripwhine/0.1'
+FREEDB_URL = 'http://www.freedb.org/freedb/%s/%s'
+
+GENRES = (
+    'data',
+    'rock',
+    'soundtrack',
+    'misc',
+    'classical',
+    'new age',
+    'country',
+    'jazz',
+    'reggae',
+    'folk',
+    'blues',
+)
 
 IDENTIFY_CMD = 'cdparanoia -Q'
 
@@ -85,6 +104,32 @@ class Identify(object):
             sectors.append(sector_start)
 
         return sectors
+
+    @classmethod
+    def get_freedb(self, disc_id):
+        """Hit the db
+        """
+
+        headers = {
+            'User-Agent': USER_AGENT,
+        }
+
+        found = False
+        for genre in GENRES:
+            url = FREEDB_URL % (genre, disc_id)
+
+            res = requests.get(url, headers=headers)
+
+            if res.status_code == requests.codes.ok:
+                # Some entries are sometimes empty?
+                if res.content:
+                    found = True
+                    break
+
+        if found:
+            return res.content
+
+        return None
 
     def identify(self):
         """Drrn drrn
