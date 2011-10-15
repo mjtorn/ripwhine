@@ -21,20 +21,23 @@ class Interface(object):
 
         # Some of these are for testing
         self.items = (
-            ('s', 'sleep'),
+            ('i', 'identify'),
             ('r', 'rip'),
+            ('s', 'sleep'),
             ('q', 'exit'),
         )
 
         self.actions = (
-            ('s', actions.sleep_process),
+            ('i', actions.identify),
             ('r', actions.start_rip),
+            ('s', actions.sleep_process),
             ('q', lambda interface: False),
         )
 
         # Set up communications
         self.queue_to_rip, self.queue_to_rip_interface = multiprocessing.Pipe()
         self.queue_to_encode, self.queue_to_encode_interface = multiprocessing.Pipe()
+        self.queue_to_identify, self.queue_to_identify_interface = multiprocessing.Pipe()
 
     def print_menu(self):
         """Present the options to the user
@@ -67,6 +70,7 @@ class Interface(object):
         # Start the processes
         self.rip_process = processes.start_rip_process(self)
         self.encode_process = processes.start_encode_process(self)
+        self.identify_process = processes.start_identify_process(self)
 
         in_loop = True
         while in_loop:
@@ -79,6 +83,7 @@ class Interface(object):
 
         self.rip_process.terminate()
         self.encode_process.terminate()
+        self.identify_process.terminate()
 
 # EOF
 
