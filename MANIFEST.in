@@ -1,1 +1,2 @@
 include ripwhine/reqs.txt
+include README.rst
