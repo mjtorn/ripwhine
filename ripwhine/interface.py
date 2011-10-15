@@ -34,6 +34,7 @@ class Interface(object):
 
         # Set up communications
         self.queue_to_rip, self.queue_to_rip_interface = multiprocessing.Pipe()
+        self.queue_to_encode, self.queue_to_encode_interface = multiprocessing.Pipe()
 
     def print_menu(self):
         """Present the options to the user
