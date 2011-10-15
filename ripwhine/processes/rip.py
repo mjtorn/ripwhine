@@ -26,21 +26,31 @@ class Rip(object):
 
         self.interface = interface
 
+        self.actions = (
+            ('START_RIP', self.start_rip),
+        )
+
     def __call__(self):
         """Make this look like a function
         """
 
         logger.info('Ripper process started')
         while True:
-            ## Because we wait on subprocess.call(), no need to verify states
             command = self.interface.queue_to_rip_interface.recv()
             logger.info('Ripper received: %s' % command)
 
-            if command == 'START_RIP':
-                subprocess.call(RIP_CMD.split())
-                logger.info('Finished rip')
+            if dict(self.actions).has_key(command):
+                dict(self.actions)[command]()
 
-            self.interface.queue_to_rip_interface.send('FINISHED_RIP')
+    def start_rip(self):
+        """Drrn drrn
+        """
+
+        ## Because we wait on subprocess.call(), no need to verify states
+        subprocess.call(RIP_CMD.split())
+        logger.info('Finished rip')
+
+        self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
 def start_rip_process(interface):
     rip = Rip(interface)
