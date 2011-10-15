@@ -25,6 +25,9 @@ class Interface(object):
 
         self.destination_dir = DEFAULT_DIR
 
+        if not os.path.exists(self.destination_dir):
+            os.mkdir(self.destination_dir)
+
         # Some of these are for testing
         self.items = [
             ['d', 'dir [%s]' % self.destination_dir],
