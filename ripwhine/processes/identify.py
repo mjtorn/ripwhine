@@ -51,6 +51,9 @@ class Identify(object):
 
     @classmethod
     def parse_cdparanoia(self, output):
+        """Take the cdparanoia output and parse it for freedb
+        """
+
         output = output.strip()
         lines = []
         in_tracks = False
