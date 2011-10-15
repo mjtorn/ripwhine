@@ -37,8 +37,8 @@ class Interface(object):
         if action.isdigit():
             action = int(action)
 
+        ## Call our action, giving ourself as interface argument
         if dict(self.items).has_key(action):
-            ## Probably not a good interface
             retval = dict(self.actions)[action](self)
             if retval is not None:
                 return retval
