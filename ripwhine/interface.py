@@ -80,6 +80,10 @@ class Interface(object):
             ## DEBUG
             if self.queue_to_rip.poll():
                 logger.info('Received from ripper: %s' % self.queue_to_rip.recv())
+            if self.queue_to_encode.poll():
+                logger.info('Received from encoder: %s' % self.queue_to_encode.recv())
+            if self.queue_to_identify.poll():
+                logger.info('Received from identify: %s' % self.queue_to_identify.recv())
 
         self.rip_process.terminate()
         self.encode_process.terminate()
