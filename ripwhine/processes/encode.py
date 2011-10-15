@@ -43,7 +43,7 @@ class Encode(object):
         logger.info('Encoder process started')
         while True:
             command = self.interface.queue_to_encode_interface.recv()
-            logger.info('Encoder received: %s' % command)
+            logger.info('Encoder received: %s' % str(command))
 
             if dict(self.actions).has_key(command):
                 try:
@@ -79,9 +79,18 @@ class Encode(object):
         """Drrn drrn
         """
 
-        ## Because we wait on subprocess.call(), no need to verify states
-        subprocess.call(ENCODE_CMD.split())
-        logger.info('Finished encode')
+        path_to_disc, track_data = self.interface.queue_to_encode_interface.recv()
+        if not isinstance(track_data, tuple):
+            logger.error('Invalid data received, can not encode %s' % str(track_data))
+            self.interface.queue_to_encode_interface.send('FAILED_ENCODE')
+
+            return
+
+        self.path_to_disc = path_to_disc
+
+        retval = self.encode_track(track_data)
+        if not retval:
+            logger.info('[SUCCESS] %s. %s' % track_data)
 
         self.interface.queue_to_encode_interface.send('FINISHED_ENCODE')
 
