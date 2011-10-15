@@ -123,7 +123,8 @@ class Rip(object):
             logger.info('[SUCCESS] %s. %s' % track[-2:])
 
             self.interface.queue_to_encode.send('START_ENCODE')
-            self.interface.queue_to_encode.send(track[-2:])
+            # Ugly datastructure but time is running out.
+            self.interface.queue_to_encode.send((self.path_to_disc, track[-2:]))
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
