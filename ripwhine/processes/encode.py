@@ -32,6 +32,9 @@ class Encode(object):
             ('START_ENCODE', self.start_encode),
         )
 
+        # Pull this from the ripper
+        self.path_to_disc = None
+
     def __call__(self):
         """Make this look like a function
         """
