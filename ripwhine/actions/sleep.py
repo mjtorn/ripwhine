@@ -19,7 +19,7 @@ def do_sleep():
     time.sleep(1)
     logger.info('Slept')
 
-def sleep_process():
+def sleep_process(interface):
     """Spawn it
     """
 
