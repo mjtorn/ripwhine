@@ -34,6 +34,7 @@ TODO/Wishlist
 -------------
 
 Would be nice if:
+
 * inputting didn't block the messages like it does now
 * we were tied to the optical drive's events to automatically identify discs
 * better output from cdparanoia and flac
