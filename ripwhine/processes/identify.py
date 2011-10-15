@@ -107,7 +107,7 @@ class Identify(object):
         ## Unlike the mb example code, disregard different track artists
         track_num = 1
         for track in release.tracks:
-            formatted_track_num = '%2d' % track_num
+            formatted_track_num = '%02d' % track_num
 
             year = release.getEarliestReleaseDate()
             year = year.split('-')[0] # disregard the exact date
