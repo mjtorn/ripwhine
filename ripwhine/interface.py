@@ -10,12 +10,12 @@ class Interface(object):
 
         # self.print_menu is for testing ;)
         self.items = (
-            (0, 'print menu'),
+            ('p', 'print menu'),
             (9, 'exit'),
         )
 
         self.actions = (
-            (0, self.print_menu),
+            ('p', self.print_menu),
             (9, lambda: False),
         )
 
@@ -24,7 +24,7 @@ class Interface(object):
         """
 
         for item in self.items:
-            print '%d. %s' % item
+            print '%s. %s' % item
 
     def handle_input(self):
         """Read user input, validate, execute. Return True if more loops required
@@ -34,11 +34,12 @@ class Interface(object):
 
         if action.isdigit():
             action = int(action)
-            if dict(self.items).has_key(action):
-                ## Probably not a good interface
-                retval = dict(self.actions)[action]()
-                if retval is not None:
-                    return retval
+
+        if dict(self.items).has_key(action):
+            ## Probably not a good interface
+            retval = dict(self.actions)[action]()
+            if retval is not None:
+                return retval
 
         return True
 
