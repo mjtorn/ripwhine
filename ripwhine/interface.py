@@ -12,15 +12,13 @@ class Interface(object):
 
         # Some of these are for testing
         self.items = (
-            ('p', 'print menu'),
             ('s', 'sleep'),
             ('q', 'exit'),
         )
 
         self.actions = (
-            ('p', self.print_menu),
             ('s', actions.sleep_process),
-            ('q', lambda: False),
+            ('q', lambda interface: False),
         )
 
     def print_menu(self):
