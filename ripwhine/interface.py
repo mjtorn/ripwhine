@@ -2,6 +2,15 @@
 
 from ripwhine import actions
 
+import multiprocessing
+
+import logging
+
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
+
 class Interface(object):
     """Handles interfacing with the user
     """
