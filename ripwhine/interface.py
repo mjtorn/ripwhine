@@ -114,7 +114,7 @@ class Interface(object):
                     self.track_tuples = self.queue_to_identify.recv()
                     if not isinstance(self.track_tuples, tuple):
                         logger.error('Invalid return value type from identify!')
-                        logger.error('%s' % self.track_tuples)
+                        logger.error('%s' % str(self.track_tuples))
 
                         self.track_tuples = None
 
