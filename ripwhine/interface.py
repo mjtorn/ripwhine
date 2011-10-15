@@ -101,7 +101,6 @@ class Interface(object):
             self.print_menu()
             in_loop = self.handle_input()
 
-            ## DEBUG
             if self.queue_to_rip.poll():
                 logger.info('Received from ripper: %s' % self.queue_to_rip.recv())
             if self.queue_to_encode.poll():
@@ -110,8 +109,10 @@ class Interface(object):
                 from_identify = self.queue_to_identify.recv()
                 logger.info('Received from identify: %s' % from_identify)
 
+                ## Store our tracks so rip and encode can use them
                 if from_identify == 'FINISHED_IDENTIFY':
                     self.track_tuples = self.queue_to_identify.recv()
+
                     if not isinstance(self.track_tuples, tuple):
                         logger.error('Invalid return value type from identify!')
                         logger.error('%s' % str(self.track_tuples))
