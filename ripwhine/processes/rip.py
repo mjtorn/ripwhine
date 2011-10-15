@@ -13,6 +13,9 @@ import time
 
 import subprocess
 
+## FIXME: replace with real ripping cmd ;)
+RIP_CMD = 'sleep 3'
+
 class Rip(object):
     """Process persisting to do rips on command
     """
@@ -31,8 +34,7 @@ class Rip(object):
         while True:
             logger.info('Ripper received: %s' % self.interface.queue_to_rip_interface.recv())
 
-            ## FIXME: replace with real ripping cmd ;)
-            subprocess.call(['sleep', '2'])
+            subprocess.call(RIP_CMD.split())
 
             self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
