@@ -122,9 +122,9 @@ class Identify(object):
                     break
 
         if found:
-            return res.content
+            return url, res.content
 
-        return None
+        return None, None
 
     def identify(self):
         """Drrn drrn
@@ -144,7 +144,8 @@ class Identify(object):
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
-        freedb_output = self.get_freedb(disc_id)
+        freedb_url, freedb_output = self.get_freedb(disc_id)
+        logger.info('[SUCCESS] %s' % freedb_url)
         if freedb_output is None:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
