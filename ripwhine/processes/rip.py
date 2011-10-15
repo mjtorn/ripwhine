@@ -16,7 +16,7 @@ import sys
 import traceback
 
 ## FIXME: replace with real ripping cmd ;)
-RIP_CMD = 'sleep 3'
+RIP_CMD = 'sleep 0.1'
 
 class Rip(object):
     """Process persisting to do rips on command
@@ -52,9 +52,18 @@ class Rip(object):
         """Drrn drrn
         """
 
+        ## Snatch what to rip
+        track_tuples = self.interface.queue_to_rip_interface.recv()
+        if not isinstance(track_tuples, tuple):
+            logger.error('Something wicked this way came: %s' % str(track_tuples))
+
+            self.interface.queue_to_rip_interface.send('FAILED_RIP')
+            return
+
         ## Because we wait on subprocess.call(), no need to verify states
-        subprocess.call(RIP_CMD.split())
-        logger.info('Finished rip')
+        for track in track_tuples:
+            subprocess.call(RIP_CMD.split())
+            logger.info('[SUCCESS] %s. %s' % track[-2:])
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
         self.interface.queue_to_encode.send('START_ENCODE')
