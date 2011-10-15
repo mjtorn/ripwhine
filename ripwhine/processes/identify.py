@@ -80,6 +80,8 @@ class Identify(object):
 
             return
 
+        logger.info('[SUCCESS] Got %d releases' % len(releases))
+
         if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
