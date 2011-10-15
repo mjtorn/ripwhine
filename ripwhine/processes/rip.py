@@ -4,10 +4,7 @@ import logging
 
 import multiprocessing
 
-logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    logger.addHandler(logging.StreamHandler())
+import os
 
 import subprocess
 
@@ -35,6 +32,9 @@ class Rip(object):
         self.actions = (
             ('START_RIP', self.start_rip),
         )
+
+        ## Set when ripping, through verifying the path is ok
+        self.path_to_disc = None
 
     def __call__(self):
         """Make this look like a function
@@ -104,13 +104,28 @@ class Rip(object):
             self.interface.queue_to_rip_interface.send('FAILED_RIP')
             return
 
+        ## Is the destination safe?
+        try:
+            self.check_destination(track_tuples)
+        except IOError, e:
+            logger.error('[FAIL] %s' % e)
+            self.interface.queue_to_rip_interface.send('FAILED_RIP')
+            return
+
         ## Because we wait on subprocess.call(), no need to verify states
         for track in track_tuples:
-            subprocess.call(RIP_CMD.split())
+            retval = self.rip_track(track[-2:])
+            if retval:
+                logger.error('[FAIL] Command died on status %s' % retval)
+                self.interface.queue_to_rip_interface.send('FAILED_RIP')
+                return
+                
             logger.info('[SUCCESS] %s. %s' % track[-2:])
 
+            self.interface.queue_to_encode.send('START_ENCODE')
+            self.interface.queue_to_encode.send(track[-2:])
+
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
-        self.interface.queue_to_encode.send('START_ENCODE')
 
 def start_rip_process(interface):
     rip = Rip(interface)
