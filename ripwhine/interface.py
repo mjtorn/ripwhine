@@ -14,13 +14,13 @@ class Interface(object):
         self.items = (
             ('p', 'print menu'),
             ('s', 'sleep'),
-            (9, 'exit'),
+            ('q', 'exit'),
         )
 
         self.actions = (
             ('p', self.print_menu),
             ('s', actions.sleep_process),
-            (9, lambda: False),
+            ('q', lambda: False),
         )
 
     def print_menu(self):
