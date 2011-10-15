@@ -1,5 +1,7 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
+from ripwhine import actions
+
 class Interface(object):
     """Handles interfacing with the user
     """
@@ -8,14 +10,16 @@ class Interface(object):
         """Set the menu items and actions
         """
 
-        # self.print_menu is for testing ;)
+        # Some of these are for testing
         self.items = (
             ('p', 'print menu'),
+            ('s', 'sleep'),
             (9, 'exit'),
         )
 
         self.actions = (
             ('p', self.print_menu),
+            ('s', actions.sleep_process),
             (9, lambda: False),
         )
 
