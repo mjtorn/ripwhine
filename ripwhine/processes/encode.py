@@ -4,10 +4,7 @@ import logging
 
 import multiprocessing
 
-logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    logger.addHandler(logging.StreamHandler())
+import os
 
 import subprocess
 
@@ -15,8 +12,12 @@ import sys
 
 import traceback
 
-## FIXME: replace with real encoding cmd ;)
-ENCODE_CMD = 'sleep 3'
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
+
+ENCODE_CMD = ['flac', '--best', '-o']
 
 class Encode(object):
     """Process persisting to do encodes on command
@@ -50,6 +51,29 @@ class Encode(object):
                 except Exception, e:
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
+
+    def encode_track(self, track_data):
+        """Encode one track
+        """
+
+        ## Num and name
+        filename = '%s. %s' % track_data
+
+        wav_source = os.path.join(self.path_to_disc, '%s.wav' % filename)
+        flac_destination = os.path.join(self.path_to_disc, '%s.flac' % filename)
+
+        cmd = ENCODE_CMD[:]
+        cmd.append(flac_destination)
+        cmd.append(wav_source)
+
+        retval = subprocess.call(cmd)
+        if retval:
+            logger.error('[FAIL] Command died on status %s' % retval)
+            self.interface.queue_to_rip_interface.send('FAILED_RIP')
+        else:
+            os.unlink(wav_source)
+
+        return retval
 
     def start_encode(self):
         """Drrn drrn
