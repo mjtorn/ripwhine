@@ -6,10 +6,14 @@ import multiprocessing
 
 import logging
 
+import os
+
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
+
+DEFAULT_DIR = '/tmp/'
 
 class Interface(object):
     """Handles interfacing with the user
@@ -19,15 +23,19 @@ class Interface(object):
         """Set the menu items and actions
         """
 
+        self.destination_dir = DEFAULT_DIR
+
         # Some of these are for testing
-        self.items = (
+        self.items = [
+            ['d', 'dir [%s]' % self.destination_dir],
             ('i', 'identify'),
             ('r', 'rip'),
             ('s', 'sleep'),
             ('q', 'exit'),
-        )
+        ]
 
         self.actions = (
+            ('d', actions.change_dir),
             ('i', actions.identify),
             ('r', actions.start_rip),
             ('s', actions.sleep_process),
@@ -60,7 +68,7 @@ class Interface(object):
         print
 
         for item in self.items:
-            print '%s. %s' % item
+            print '%s. %s' % (item[0], item[1])
 
     def handle_input(self):
         """Read user input, validate, execute. Return True if more loops required
