@@ -9,8 +9,6 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
-import time
-
 import subprocess
 
 ## FIXME: replace with real ripping cmd ;)
