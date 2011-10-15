@@ -64,8 +64,9 @@ class Interface(object):
         """Work-horse, nay, pwny
         """
 
-        # Start the ripper listener
+        # Start the processes
         self.rip_process = processes.start_rip_process(self)
+        self.encode_process = processes.start_encode_process(self)
 
         in_loop = True
         while in_loop:
@@ -77,6 +78,7 @@ class Interface(object):
                 logger.info('Received from ripper: %s' % self.queue_to_rip.recv())
 
         self.rip_process.terminate()
+        self.encode_process.terminate()
 
 # EOF
 
