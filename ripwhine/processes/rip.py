@@ -32,9 +32,13 @@ class Rip(object):
 
         logger.info('Ripper process started')
         while True:
-            logger.info('Ripper received: %s' % self.interface.queue_to_rip_interface.recv())
+            ## Because we wait on subprocess.call(), no need to verify states
+            command = self.interface.queue_to_rip_interface.recv()
+            logger.info('Ripper received: %s' % command)
 
-            subprocess.call(RIP_CMD.split())
+            if command == 'START_RIP':
+                subprocess.call(RIP_CMD.split())
+                logger.info('Finished rip')
 
             self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
