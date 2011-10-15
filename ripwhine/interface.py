@@ -30,6 +30,9 @@ class Interface(object):
             ('q', lambda interface: False),
         )
 
+        # Set up communications
+        self.queue_to_rip, self.queue_to_rip_interface = multiprocessing.Pipe()
+
     def print_menu(self):
         """Present the options to the user
         """
