@@ -48,6 +48,29 @@ class Rip(object):
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
+    def check_destination(self, track_tuples):
+        """Make sure we know where the music goes
+        """
+
+        artist, year, disc = track_tuples[0][:3]
+        year_disc = '%s - %s' % (year, disc)
+
+        path_to_artist = os.path.join(self.interface.destination_dir, artist)
+        path_to_disc = os.path.join(path_to_artist, year_disc)
+        symlink_to_disc = os.path.join(path_to_artist, disc)
+
+        if not os.path.exists(path_to_artist):
+            os.mkdir(path_to_artist)
+            logger.info('Created %s' % path_to_artist)
+
+        ## Maybe I could clean up half-rips but do not care
+        if not os.path.exists(path_to_disc):
+            os.mkdir(path_to_disc)
+            os.symlink(path_to_disc, symlink_to_disc)
+            logger.info('Created %s' % path_to_disc)
+
+        self.path_to_disc = path_to_disc
+
     def start_rip(self):
         """Drrn drrn
         """
