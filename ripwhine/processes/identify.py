@@ -106,6 +106,7 @@ class Identify(object):
 
         ## Unlike the mb example code, disregard different track artists
         track_num = 1
+        track_tuples = []
         for track in release.tracks:
             formatted_track_num = '%02d' % track_num
 
@@ -116,9 +117,10 @@ class Identify(object):
 
             track_num += 1
 
-            print track_tuple
+            track_tuples.append(track_tuple)
 
         self.interface.queue_to_identify_interface.send('FINISHED_IDENTIFY')
+        self.interface.queue_to_identify_interface.send(track_tuples)
 
 def start_identify_process(interface):
     identify = Identify(interface)
