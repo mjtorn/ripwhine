@@ -56,7 +56,7 @@ class Rip(object):
         """Make sure we know where the music goes
         """
 
-        artist, year, disc = track_tuples[0][:3]
+        disc_id, artist, year, disc = track_tuples[0][:4]
         year_disc = '%s - %s' % (year, disc)
 
         path_to_artist = os.path.join(self.interface.destination_dir, artist)
@@ -72,6 +72,11 @@ class Rip(object):
             os.mkdir(path_to_disc)
             os.symlink(path_to_disc, symlink_to_disc)
             logger.info('Created %s' % path_to_disc)
+
+        ## Create a file with the mbid used
+        f = open(os.path.join(path_to_disc, 'musicbrainz.id'), 'wb')
+        f.write('%s\n' % disc_id)
+        f.close()
 
         self.path_to_disc = path_to_disc
 
