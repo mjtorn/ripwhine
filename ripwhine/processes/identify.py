@@ -111,7 +111,7 @@ class Identify(object):
             year = release.getEarliestReleaseDate()
             year = year.split('-')[0] # disregard the exact date
 
-            track_tuple = (release.artist.name, year, release.title, formatted_track_num, track.title)
+            track_tuple = (disc_id, release.artist.name, year, release.title, formatted_track_num, track.title)
 
             track_num += 1
 
