@@ -58,13 +58,13 @@ class Interface(object):
         """
 
         if self.track_tuples:
-            artist, year, disc = self.track_tuples[0][:3]
-            heading = '%s - %s (%s)' % (artist, disc, year)
+            disc_id, artist, year, disc = self.track_tuples[0][:4]
+            heading = '%s: %s - %s (%s)' % (disc_id, artist, disc, year)
 
             print heading
 
             for track in self.track_tuples:
-                print ' * %s. %s' % (track[3], track[4])
+                print ' * %s. %s' % (track[4], track[5])
         else:
             print '*** NO DISC ***'
 
