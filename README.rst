@@ -15,11 +15,34 @@ $ python setup.py install
 
 Launch with ``./ripwhine``
 
-The menu is pretty self-evident. raw_input and the messaging
-don't play well together, so hitting enter will refresh
-the state like after [i].
+The menu is pretty self-evident, and works without
+pressing enter between commands.
 
 Feel free to experiment with it, it can't break anything!
+
+Output
+------
+
+There's a format to how ripped files are stored, based on
+my view (that I was told about as a kid) that CDs are organized
+by artists alphabetically and discs by year.
+
+The output is a directory for the artist, and sub-directories
+for discs named "Year - Album Name."
+
+That gets a bit tricky when using the shell to play music so a
+symlink is set up for the album as well.
+
+Next to the flacs is a file ``musicbrainz.id`` with the disc id
+used for identification.
+
+Apps like Rhythmbox probably don't care, or might read
+the files in twice, or whatever. Can't say I'm affected
+by that because I use mplayer ;)
+
+cdparanoia runs with -X so it aborts on fatal errors.
+
+lame runs with --best because it seems reasonable.
 
 Quickstart
 ----------
@@ -35,17 +58,26 @@ TODO/Wishlist
 
 Would be nice if:
 
-* inputting didn't block the messages like it does now
 * we were tied to the optical drive's events to automatically identify discs
 * better output from cdparanoia and flac
 * eject button in the UI
 
-Greets and email
-----------------
+An original vision was that ripwhine would create a list
+of your music. That didn't make it during the day and should
+be easy enough to implement later using os.path.walk() or
+a separate software, because of the id files.
+
+Greets
+------
+
+I'm quite sure it was sph who told me about organizing discs.
 
 Props to part for pointing me at musicbrainz to replace freedb.
 
-mjt@fadconsulting.com
+Contact
+-------
+
+Email me at mjt@fadconsulting.com or whatever.
 
 License
 -------
