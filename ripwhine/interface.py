@@ -41,6 +41,7 @@ class Interface(object):
             ['d', 'dir [%s]' % self.destination_dir],
             ('i', 'identify'),
             ('r', 'rip'),
+            ('p', 'print menu'),
             ('s', 'sleep'),
             ('q', 'exit'),
         ]
@@ -49,6 +50,7 @@ class Interface(object):
             ('d', actions.change_dir),
             ('i', actions.identify),
             ('r', actions.start_rip),
+            ('p', self.print_menu),
             ('s', actions.sleep_process),
             ('q', lambda interface: False),
         )
@@ -61,6 +63,7 @@ class Interface(object):
         # Our current disc
         self.track_tuples = None
 
+    @staticmethod
     def print_menu(self):
         """Present the options to the user
         """
@@ -117,7 +120,7 @@ class Interface(object):
 
             in_loop = True
             while in_loop:
-                self.print_menu()
+                self.print_menu(self)
                 in_loop = self.handle_input(poll)
 
                 if self.queue_to_rip.poll():
