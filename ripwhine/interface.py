@@ -8,6 +8,14 @@ import logging
 
 import os
 
+import select
+
+import sys
+
+import termios
+
+import tty
+
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
@@ -73,11 +81,13 @@ class Interface(object):
         for item in self.items:
             print '%s. %s' % (item[0], item[1])
 
-    def handle_input(self):
+    def handle_input(self, poll):
         """Read user input, validate, execute. Return True if more loops required
         """
 
-        action = raw_input('>>> ')
+        print '>>> '
+        poll.poll()
+        action = sys.stdin.read(1)
 
         if action.isdigit():
             action = int(action)
@@ -99,28 +109,36 @@ class Interface(object):
         self.encode_process = processes.start_encode_process(self)
         self.identify_process = processes.start_identify_process(self)
 
-        in_loop = True
-        while in_loop:
-            self.print_menu()
-            in_loop = self.handle_input()
+        old_settings = termios.tcgetattr(sys.stdin)
+        try:
+            tty.setcbreak(sys.stdin.fileno())
+            poll = select.poll()
+            poll.register(sys.stdin, select.POLLIN)
 
-            if self.queue_to_rip.poll():
-                logger.info('Received from ripper: %s' % self.queue_to_rip.recv())
-            if self.queue_to_encode.poll():
-                logger.info('Received from encoder: %s' % self.queue_to_encode.recv())
-            if self.queue_to_identify.poll():
-                from_identify = self.queue_to_identify.recv()
-                logger.info('Received from identify: %s' % from_identify)
+            in_loop = True
+            while in_loop:
+                self.print_menu()
+                in_loop = self.handle_input(poll)
 
-                ## Store our tracks so rip and encode can use them
-                if from_identify == 'FINISHED_IDENTIFY':
-                    self.track_tuples = self.queue_to_identify.recv()
+                if self.queue_to_rip.poll():
+                    logger.info('Received from ripper: %s' % self.queue_to_rip.recv())
+                if self.queue_to_encode.poll():
+                    logger.info('Received from encoder: %s' % self.queue_to_encode.recv())
+                if self.queue_to_identify.poll():
+                    from_identify = self.queue_to_identify.recv()
+                    logger.info('Received from identify: %s' % from_identify)
 
-                    if not isinstance(self.track_tuples, tuple):
-                        logger.error('Invalid return value type from identify!')
-                        logger.error('%s' % str(self.track_tuples))
+                    ## Store our tracks so rip and encode can use them
+                    if from_identify == 'FINISHED_IDENTIFY':
+                        self.track_tuples = self.queue_to_identify.recv()
 
-                        self.track_tuples = None
+                        if not isinstance(self.track_tuples, tuple):
+                            logger.error('Invalid return value type from identify!')
+                            logger.error('%s' % str(self.track_tuples))
+
+                            self.track_tuples = None
+        finally:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
         self.rip_process.terminate()
         self.encode_process.terminate()
