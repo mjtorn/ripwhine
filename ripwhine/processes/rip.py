@@ -104,7 +104,7 @@ class Rip(object):
 
         ## Validate cdparanoia
         found = False
-        for directory in os.environ['PATH']:
+        for directory in os.environ['PATH'].split(':'):
             if os.path.exists(os.path.join(directory, CDPARANOIA_BINARY)):
                 found = True
                 break
