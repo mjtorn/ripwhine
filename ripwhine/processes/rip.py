@@ -17,7 +17,8 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
-RIP_CMD = ['cdparanoia', '-X']
+CDPARANOIA_BINARY = 'cdparanoia'
+RIP_CMD = [CDPARANOIA_BINARY, '-X']
 
 class Rip(object):
     """Process persisting to do rips on command
@@ -100,6 +101,18 @@ class Rip(object):
     def start_rip(self):
         """Drrn drrn
         """
+
+        ## Validate cdparanoia
+        found = False
+        for directory in os.environ['PATH']:
+            if os.path.exists(os.path.join(directory, CDPARANOIA_BINARY)):
+                found = True
+                break
+
+        if not found:
+            logger.error('[FAIL] No cdparanoia found!')
+            self.interface.queue_to_rip_interface.send('FAILED_RIP')
+            return
 
         ## Snatch what to rip
         track_tuples = self.interface.queue_to_rip_interface.recv()
