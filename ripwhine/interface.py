@@ -78,7 +78,8 @@ class Interface(object):
             print heading
 
             for track in self.track_tuples:
-                print ' * %s. %s' % (track[4], track[5])
+                on_disc = track[6]
+                print ' * %s. %s %s' % (track[4], track[5], 'NOT ON DISC' if not on_disc else '')
         else:
             print '*** NO DISC ***'
             print self.info_text
