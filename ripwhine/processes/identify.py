@@ -118,7 +118,6 @@ class Identify(object):
                 # The ratio is somewhat precisely 1.0 / 75 * 1000 == 13.333
                 dt_len_seconds = dt_length * 1000 / 75
                 if dt_len_seconds == track.duration:
-                    hit_release_start = True
                     on_disc = True
                     break
 
