@@ -83,6 +83,9 @@ class Identify(object):
         if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
+            submission_url = mbdisc.getSubmissionUrl(disc)
+            self.interface.queue_to_identify_interface.send(submission_url)
+
             return
         elif len(releases) > 1:
             logger.warn('[DISC] Got %d releases, running with the first one!' % len(releases))

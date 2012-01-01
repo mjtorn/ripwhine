@@ -63,6 +63,9 @@ class Interface(object):
         # Our current disc
         self.track_tuples = None
 
+        # submission url or anything else
+        self.info_text = None
+
     @staticmethod
     def print_menu(self):
         """Present the options to the user
@@ -78,6 +81,8 @@ class Interface(object):
                 print ' * %s. %s' % (track[4], track[5])
         else:
             print '*** NO DISC ***'
+            print self.info_text
+            print '***************'
 
         print
 
@@ -140,6 +145,11 @@ class Interface(object):
                             logger.error('%s' % str(self.track_tuples))
 
                             self.track_tuples = None
+                        else:
+                            self.info_text = None
+                    elif from_identify == 'NO_DATA':
+                        submission_url = self.queue_to_identify.recv()
+                        self.info_text = submission_url
         finally:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
