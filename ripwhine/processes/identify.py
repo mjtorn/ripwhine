@@ -112,12 +112,20 @@ class Identify(object):
         track_num = 1
         track_tuples = []
         for track in release.tracks:
+            on_disc = False
+            for disc_track in disc_tracks:
+                dt_offset, dt_length = disc_track
+                # The ratio is somewhat precisely 1.0 / 75 * 1000 == 13.333
+                dt_len_seconds = dt_length * 1000 / 75
+                if dt_len_seconds == track.duration:
+                    hit_release_start = True
+                    on_disc = True
+                    break
+
             formatted_track_num = '%02d' % track_num
 
             year = release.getEarliestReleaseDate()
             year = year.split('-')[0] # disregard the exact date
-
-            on_disc = track_num <= len(disc_tracks)
 
             track_tuple = (disc_id, release.artist.name, year, release.title, formatted_track_num, track.title, on_disc)
 
