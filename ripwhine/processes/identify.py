@@ -105,6 +105,9 @@ class Identify(object):
 
             return
 
+        ## release.tracks contains tracks not on this actual disc, cope
+        disc_tracks = disc.getTracks()
+
         ## Unlike the mb example code, disregard different track artists
         track_num = 1
         track_tuples = []
@@ -114,7 +117,9 @@ class Identify(object):
             year = release.getEarliestReleaseDate()
             year = year.split('-')[0] # disregard the exact date
 
-            track_tuple = (disc_id, release.artist.name, year, release.title, formatted_track_num, track.title)
+            on_disc = track_num <= len(disc_tracks)
+
+            track_tuple = (disc_id, release.artist.name, year, release.title, formatted_track_num, track.title, on_disc)
 
             track_num += 1
 
