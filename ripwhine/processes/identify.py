@@ -98,7 +98,13 @@ class Identify(object):
             # releaseEvents required to get year
             release_includes = mbws.ReleaseIncludes(artist=True, tracks=True, releaseEvents=True)
 
-            release = query.getReleaseById(release.getId(), release_includes)
+            try:
+                release = query.getReleaseById(release.getId(), release_includes)
+            except TypeError, e:
+                logger.error('[FAIL] %s' % e)
+                logger.error('[CLUE] %s' % mbdisc.getSubmissionUrl(disc))
+
+                return
         except mbws.WebServiceError, e:
             logger.error('[FAIL] %s' % e)
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
