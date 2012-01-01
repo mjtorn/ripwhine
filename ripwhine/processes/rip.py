@@ -119,7 +119,14 @@ class Rip(object):
 
         ## Because we wait on subprocess.call(), no need to verify states
         for track in track_tuples:
-            retval = self.rip_track(track[-2:])
+            track_num = track[4]
+            track_name = track[5]
+            on_disc = track[6]
+            if not on_disc:
+                logger.warn('[IGNORE] Not on disc: %s' % track_name)
+                continue
+
+            retval = self.rip_track(track[-3:-1])
             if retval:
                 logger.error('[FAIL] Command died on status %s' % retval)
                 self.interface.queue_to_rip_interface.send('FAILED_RIP')
@@ -128,8 +135,7 @@ class Rip(object):
             logger.info('[SUCCESS] %s. %s' % track[-2:])
 
             self.interface.queue_to_encode.send('START_ENCODE')
-            # Ugly datastructure but time is running out.
-            self.interface.queue_to_encode.send((self.path_to_disc, track[-2:]))
+            self.interface.queue_to_encode.send((self.path_to_disc, (track_num, track_name)))
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
