@@ -60,6 +60,8 @@ class Rip(object):
         disc_id, artist, year, disc = track_tuples[0][:4]
         year_disc = '%s - %s' % (year, disc)
 
+        artist = artist.replace('/', '-')
+
         path_to_artist = os.path.join(self.interface.destination_dir, artist)
         path_to_disc = os.path.join(path_to_artist, year_disc)
         symlink_to_disc = os.path.join(path_to_artist, disc)
