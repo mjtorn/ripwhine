@@ -58,6 +58,7 @@ class Encode(object):
 
         ## Num and name
         filename = '%s. %s' % track_data
+        filename = filename.replace('/', '-')
 
         wav_source = os.path.join(self.path_to_disc, '%s.wav' % filename)
         flac_destination = os.path.join(self.path_to_disc, '%s.flac' % filename)
