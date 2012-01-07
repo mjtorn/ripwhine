@@ -58,9 +58,11 @@ class Rip(object):
         """
 
         disc_id, artist, year, disc = track_tuples[0][:4]
-        year_disc = '%s - %s' % (year, disc)
 
         artist = artist.replace('/', '-')
+        disc = disc.replace('/', '-')
+
+        year_disc = '%s - %s' % (year, disc)
 
         path_to_artist = os.path.join(self.interface.destination_dir, artist)
         path_to_disc = os.path.join(path_to_artist, year_disc)
@@ -89,6 +91,7 @@ class Rip(object):
 
         ## Num and name
         filename = '%s. %s.wav' % track_data
+        filename = filename.replace('/', '-')
 
         wav_destination = os.path.join(self.path_to_disc, filename)
 
