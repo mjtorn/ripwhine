@@ -149,6 +149,7 @@ class Interface(object):
                         else:
                             self.info_text = None
                     elif from_identify == 'NO_DATA':
+                        self.track_tuples = None
                         submission_url = self.queue_to_identify.recv()
                         self.info_text = submission_url
         finally:
