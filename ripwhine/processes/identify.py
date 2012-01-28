@@ -93,6 +93,8 @@ class Identify(object):
         ## Use the first release
         release = releases[0].release
 
+        submission_url = mbdisc.getSubmissionUrl(disc)
+
         ## Need to get additional data separately
         try:
             # releaseEvents required to get year
@@ -102,7 +104,7 @@ class Identify(object):
                 release = query.getReleaseById(release.getId(), release_includes)
             except TypeError, e:
                 logger.error('[FAIL] %s' % e)
-                logger.error('[CLUE] %s' % mbdisc.getSubmissionUrl(disc))
+                logger.error('[CLUE] %s' % submission_url)
 
                 return
         except mbws.WebServiceError, e:
@@ -110,6 +112,8 @@ class Identify(object):
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
+
+        logger.info('[URL] %s' % submission_url)
 
         ## release.tracks contains tracks not on this actual disc, cope
         disc_tracks = disc.getTracks()
