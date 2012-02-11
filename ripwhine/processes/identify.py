@@ -60,6 +60,7 @@ class Identify(object):
             disc = mbdisc.readDisc()
         except mbdisc.DiscError, e:
             logger.error('[FAIL] %s' % e)
+            logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
@@ -74,6 +75,7 @@ class Identify(object):
             releases = query.getReleases(release_filter)
         except mbws.WebServiceError, e:
             logger.error('[FAIL] %s' % e)
+            logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
@@ -104,11 +106,13 @@ class Identify(object):
                 release = query.getReleaseById(release.getId(), release_includes)
             except TypeError, e:
                 logger.error('[FAIL] %s' % e)
+                logger.error(''.join(traceback.format_exception(*sys.exc_info())))
                 logger.error('[CLUE] %s' % submission_url)
 
                 return
         except mbws.WebServiceError, e:
             logger.error('[FAIL] %s' % e)
+            logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
