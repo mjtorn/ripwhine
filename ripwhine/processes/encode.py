@@ -57,10 +57,33 @@ class Encode(object):
         """
 
         ## Num and name
-        filename = '%s. %s' % track_data
+        filename = u'%s. %s' % track_data
         filename = filename.replace('/', '-')
 
-        wav_source = os.path.join(self.path_to_disc, '%s.wav' % filename)
+        bkp_filename = filename
+
+        logger.info(u'[ENC NAME] File name %d bytes: %s' % (len(filename.encode('utf-8')), filename))
+
+        ## Potential mangling required
+        # fs limit is 256, but cdparanoia 104? o_O
+        if len(filename.encode('utf-8')) >= 104:
+            logger.warn(u'[WAV NAME] Long file name %d bytes' % len(filename.encode('utf-8')))
+            filename = filename.encode('utf-8')[:104]
+            filename = filename.decode('utf-8').strip()
+
+            wav_source = os.path.join(self.path_to_disc, filename)
+        else:
+            wav_source = os.path.join(self.path_to_disc, '%s.wav' % filename)
+
+        # Reset filename for flac handling, in case it was mangled for wav
+        filename = bkp_filename
+
+        # fs limit is 256, 5 bytes for '.flac'
+        if len(filename.encode('utf-8')) > 251:
+            logger.warn(u'[FLAC NAME] Long file name %d bytes' % len(filename.encode('utf-8')))
+            filename = filename.encode('utf-8')[:251]
+            filename = filename.decode('utf-8').strip()
+
         flac_destination = os.path.join(self.path_to_disc, '%s.flac' % filename)
 
         cmd = ENCODE_CMD[:]
