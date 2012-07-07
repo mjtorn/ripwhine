@@ -17,6 +17,7 @@ def start_rip(interface):
         logger.warn('Ignoring request to rip no disc')
     else:
         interface.queue_to_rip.send('START_RIP')
+        interface.queue_to_rip.send(interface.fail)
         interface.queue_to_rip.send(interface.track_tuples)
 
 # EOF
