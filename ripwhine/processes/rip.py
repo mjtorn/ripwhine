@@ -18,7 +18,6 @@ if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
 CDPARANOIA_BINARY = 'cdparanoia'
-RIP_CMD = [CDPARANOIA_BINARY, '-X']
 
 class Rip(object):
     """Process persisting to do rips on command
@@ -85,7 +84,7 @@ class Rip(object):
 
         self.path_to_disc = path_to_disc
 
-    def rip_track(self, track_data):
+    def rip_track(self, track_data, fail):
         """Rip one track
         """
 
@@ -99,9 +98,12 @@ class Rip(object):
 
         wav_destination = os.path.join(self.path_to_disc, filename)
 
-        cmd = RIP_CMD[:]
+        cmd = [CDPARANOIA_BINARY]
+        if fail:
+            cmd.append('-X')
         cmd.append(track_data[0])
         cmd.append(wav_destination)
+        logger.debug(cmd)
 
         retval = subprocess.call(cmd)
 
@@ -122,6 +124,9 @@ class Rip(object):
             logger.error('[FAIL] No cdparanoia found!')
             self.interface.queue_to_rip_interface.send('FAILED_RIP')
             return
+
+        ## Do we fail cdparanoia on a bad rip?
+        fail = self.interface.queue_to_rip_interface.recv()
 
         ## Snatch what to rip
         track_tuples = self.interface.queue_to_rip_interface.recv()
@@ -148,7 +153,7 @@ class Rip(object):
                 logger.warn('[IGNORE] Not on disc: %s' % track_name)
                 continue
 
-            retval = self.rip_track(track[-3:-1])
+            retval = self.rip_track(track[-3:-1], fail)
             if retval:
                 logger.error('[FAIL] Command died on status %s' % retval)
                 self.interface.queue_to_rip_interface.send('FAILED_RIP')
