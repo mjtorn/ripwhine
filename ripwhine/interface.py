@@ -33,6 +33,8 @@ class Interface(object):
 
         self.destination_dir = DEFAULT_DIR
 
+        self.fail = True
+
         if not os.path.exists(self.destination_dir):
             os.mkdir(self.destination_dir)
 
@@ -42,6 +44,7 @@ class Interface(object):
             ('i', 'identify'),
             ('r', 'rip'),
             ('e', 'eject'),
+            ('f', 'toggle fail'),
             ('p', 'print menu'),
             ('s', 'sleep'),
             ('q', 'exit'),
@@ -52,6 +55,7 @@ class Interface(object):
             ('i', actions.identify),
             ('r', actions.start_rip),
             ('e', actions.eject),
+            ('f', self.toggle_fail),
             ('p', self.print_menu),
             ('s', actions.sleep_process),
             ('q', lambda interface: False),
@@ -69,9 +73,26 @@ class Interface(object):
         self.info_text = None
 
     @staticmethod
+    def toggle_fail(self):
+        """Toggle wether or not cdparanoia fails on a bad rip
+        """
+
+        if self.fail:
+            self.fail = False
+        else:
+            self.fail = True
+
+    @staticmethod
     def print_menu(self):
         """Present the options to the user
         """
+
+        fail_str = 'Will %sfail cdparanoia on bad rip'
+
+        if self.fail:
+            print fail_str % ''
+        else:
+            print fail_str % 'not '
 
         if self.track_tuples:
             disc_id, artist, year, disc = self.track_tuples[0][:4]
