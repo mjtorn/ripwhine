@@ -100,7 +100,7 @@ class Identify(object):
         ## Need to get additional data separately
         try:
             # releaseEvents required to get year
-            release_includes = mbws.ReleaseIncludes(artist=True, tracks=True, releaseEvents=True)
+            release_includes = mbws.ReleaseIncludes(artist=True, tracks=True, releaseEvents=True, releaseRelations=True)
 
             try:
                 release = query.getReleaseById(release.getId(), release_includes)
@@ -116,6 +116,12 @@ class Identify(object):
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
+
+        is_remaster = False
+        for r in release.getRelations():
+            if r.getType().lower().endswith('remaster'):
+                is_remaster = True
+                break
 
         logger.info('[URL] %s' % submission_url)
 
@@ -141,7 +147,10 @@ class Identify(object):
             year = release.getEarliestReleaseDate()
             year = year.split('-')[0] # disregard the exact date
 
-            track_tuple = (disc_id, release.artist.sortName, year, release.title, formatted_track_num, track.title, on_disc)
+            title = release.title
+            if is_remaster:
+                title = '%s (remaster)' % title
+            track_tuple = (disc_id, release.artist.sortName, year, title, formatted_track_num, track.title, on_disc)
 
             track_num += 1
 
