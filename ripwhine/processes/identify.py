@@ -126,7 +126,8 @@ class Identify(object):
         track_num = 1
         track_tuples = []
         for track in release.tracks:
-            on_disc = False
+            ## XXX TODO FIXME Just do it, gonna use NGS for disc stuff anyway in the future
+            on_disc = True
             for disc_track in disc_tracks:
                 dt_offset, dt_length = disc_track
                 # The ratio is somewhat precisely 1.0 / 75 * 1000 == 13.333
