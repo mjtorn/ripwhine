@@ -152,8 +152,8 @@ class Identify(object):
             year = year.split('-')[0] # disregard the exact date
 
             title = release.title
-            if is_remaster:
-                title = '%s (remaster)' % title
+            #if is_remaster:
+            #    title = '%s (remaster)' % title
             track_tuple = (disc_id, release.artist.sortName, year, title, formatted_track_num, track.title, on_disc)
 
             track_num += 1
