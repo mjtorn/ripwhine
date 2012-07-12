@@ -57,7 +57,7 @@ class Identify(object):
         """
 
         try:
-            disc = mbdisc.readDisc()
+            disc = mbdisc.readDisc(deviceName='/dev/sr0')
         except mbdisc.DiscError, e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
@@ -117,11 +117,15 @@ class Identify(object):
 
             return
 
-        is_remaster = False
-        for r in release.getRelations():
-            if r.getType().lower().endswith('remaster'):
-                is_remaster = True
-                break
+        ## For at least some records, it gets called a remaster
+        ## even if it only lists remastered versions in the disc view.
+        ## Investigate later.
+
+        #is_remaster = False
+        #for r in release.getRelations():
+        #    if r.getType().lower().endswith('remaster'):
+        #        is_remaster = True
+        #        break
 
         logger.info('[URL] %s' % submission_url)
 
