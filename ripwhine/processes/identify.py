@@ -4,8 +4,7 @@ import logging
 
 import multiprocessing
 
-import musicbrainz2.disc as mbdisc
-import musicbrainz2.webservice as mbws
+import musicbrainzngs
 
 import subprocess
 
@@ -13,14 +12,15 @@ import sys
 
 import traceback
 
+from .. import __version__
+
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
 ## MusicBrainz needs some setting up
-service = mbws.WebService()
-query = mbws.Query(service)
+musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn/ripwhine/')
 
 class Identify(object):
     """Process persisting to do identifys on command
