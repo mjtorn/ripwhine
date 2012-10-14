@@ -1,2 +1,2 @@
 git+git://github.com/alastair/python-musicbrainz-ngs.git@393f3ac1c74e210c8de46559a05341ef31c131ea
-
+python-musicbrainz2
