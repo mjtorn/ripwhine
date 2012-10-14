@@ -1,5 +1,7 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
+import musicbrainz2.disc as mbdisc
+
 import logging
 
 import multiprocessing
@@ -56,6 +58,7 @@ class Identify(object):
         """Drrn drrn
         """
 
+        ## XXX: Do we really need the old library for this?
         try:
             disc = mbdisc.readDisc(deviceName='/dev/sr0')
         except mbdisc.DiscError, e:
@@ -66,7 +69,6 @@ class Identify(object):
             return
 
         disc_id = disc.getId()
-        disc_uuid = disc.getId()
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
