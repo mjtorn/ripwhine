@@ -72,15 +72,29 @@ class Identify(object):
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
+        ## XXX: The library doesn't understand a tuple here
+        includes = ['artist-credits', 'recordings']
         try:
-            release_filter = mbws.ReleaseFilter(discId=disc_id)
-            releases = query.getReleases(release_filter)
-        except mbws.WebServiceError, e:
+            data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
+        except musicbrainzngs.ResponseError, e:
+            ## Fake response to make flow easier
+            if e.cause.code == 404:
+                data = {
+                    'disc': {
+                        'id': disc_id,
+                        'release-list': []
+                    }
+                }
+            else:
+                raise
+        except Exception, e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
+
+        releases = data['disc']['release-list']
 
         logger.info('[SUCCESS] Got %d releases' % len(releases))
 
