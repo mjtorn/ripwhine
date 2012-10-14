@@ -69,11 +69,12 @@ class Identify(object):
             return
 
         disc_id = disc.getId()
+        submission_url = mbdisc.getSubmissionUrl(disc)
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
         ## XXX: The library doesn't understand a tuple here
-        includes = ['artist-credits', 'recordings']
+        includes = ['artist-credits', 'release-rels', 'recordings']
         try:
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
         except musicbrainzngs.ResponseError, e:
@@ -101,47 +102,14 @@ class Identify(object):
         if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
-            submission_url = mbdisc.getSubmissionUrl(disc)
             self.interface.queue_to_identify_interface.send(submission_url)
 
             return
         elif len(releases) > 1:
             logger.warn('[DISC] Got %d releases, running with the first one!' % len(releases))
 
-        ## Use the first release
-        release = releases[0].release
-
-        submission_url = mbdisc.getSubmissionUrl(disc)
-
-        ## Need to get additional data separately
-        try:
-            # releaseEvents required to get year
-            release_includes = mbws.ReleaseIncludes(artist=True, tracks=True, releaseEvents=True, releaseRelations=True)
-
-            try:
-                release = query.getReleaseById(release.getId(), release_includes)
-            except TypeError, e:
-                logger.error('[FAIL] %s' % e)
-                logger.error(''.join(traceback.format_exception(*sys.exc_info())))
-                logger.error('[CLUE] %s' % submission_url)
-
-                return
-        except mbws.WebServiceError, e:
-            logger.error('[FAIL] %s' % e)
-            logger.error(''.join(traceback.format_exception(*sys.exc_info())))
-            self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
-
-            return
-
-        ## For at least some records, it gets called a remaster
-        ## even if it only lists remastered versions in the disc view.
-        ## Investigate later.
-
-        #is_remaster = False
-        #for r in release.getRelations():
-        #    if r.getType().lower().endswith('remaster'):
-        #        is_remaster = True
-        #        break
+        ## XXX Use the first release now, need to prompt in the future
+        release = releases[0]
 
         logger.info('[URL] %s' % submission_url)
 
