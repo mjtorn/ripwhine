@@ -113,34 +113,43 @@ class Identify(object):
 
         logger.info('[URL] %s' % submission_url)
 
-        ## release.tracks contains tracks not on this actual disc, cope
-        disc_tracks = disc.getTracks()
+        ## Disc title
+        title = release['title']
+        if release['disambiguation']:
+            title = '%s (%s)' % (title, release['disambiguation'])
+
+        ## Require release date
+        date = data['disc']['release-list'][0]['date']
+        if not date:
+            self.interface.queue_to_identify_interface.send('NO_DATE')
+
+            return
+
+        year = date.split('-', 1)[0]
+
+        ## 0th artist...
+        if len(release['artist-credit']) > 1:
+            self.interface.queue_to_identify_interface.send('TOO_MANY_ARTISTS')
+
+            return
+
+        artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
+
+        ## Media count
+        if len(release['medium-list']) > 1:
+            self.interface.queue_to_identify_interface.send('TOO_MANY_MEDIA')
+
+            return
 
         ## Unlike the mb example code, disregard different track artists
-        track_num = 1
         track_tuples = []
-        for track in release.tracks:
-            ## XXX TODO FIXME Just do it, gonna use NGS for disc stuff anyway in the future
+        for track in release['medium-list'][0]['track-list']:
+            ## TODO: This needs to be implemented for real.
             on_disc = True
-            for disc_track in disc_tracks:
-                dt_offset, dt_length = disc_track
-                # The ratio is somewhat precisely 1.0 / 75 * 1000 == 13.333
-                dt_len_seconds = dt_length * 1000 / 75
-                if dt_len_seconds == track.duration:
-                    on_disc = True
-                    break
 
-            formatted_track_num = '%02d' % track_num
+            formatted_track_num = '%02d' % int(track['number'])
 
-            year = release.getEarliestReleaseDate()
-            year = year.split('-')[0] # disregard the exact date
-
-            title = release.title
-            #if is_remaster:
-            #    title = '%s (remaster)' % title
-            track_tuple = (disc_id, release.artist.sortName, year, title, formatted_track_num, track.title, on_disc)
-
-            track_num += 1
+            track_tuple = (disc_id, artist_sort_name, year, title, formatted_track_num, track['recording']['title'], on_disc)
 
             track_tuples.append(track_tuple)
 
