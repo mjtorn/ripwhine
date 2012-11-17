@@ -147,7 +147,7 @@ class Identify(object):
 
         ## Unlike the mb example code, disregard different track artists
         track_tuples = []
-        for track in release['medium-list'][0]['track-list']:
+        for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
             track_tuple = (disc_id, artist_sort_name, year, title, formatted_track_num, track['recording']['title'], disc_num, disc_count)
