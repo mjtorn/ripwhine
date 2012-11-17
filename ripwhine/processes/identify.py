@@ -115,7 +115,7 @@ class Identify(object):
 
         ## Disc title
         title = release['title']
-        if release['disambiguation']:
+        if release.has_key('disambiguation') and release['disambiguation']:
             title = '%s (%s)' % (title, release['disambiguation'])
 
         ## Require release date
