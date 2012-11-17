@@ -136,20 +136,21 @@ class Identify(object):
         artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
 
         ## Media count
-        if len(release['medium-list']) > 1:
-            self.interface.queue_to_identify_interface.send('TOO_MANY_MEDIA')
-
-            return
+        disc_num = 1
+        disc_count = len(release['medium-list'])
+        if disc_count > 1:
+            for medium_n in xrange(len(release['medium-list'])):
+                medium = release['medium-list'][medium_n]
+                if disc_id in [d['id'] for d in medium['disc-list']]:
+                    disc_num = medium_n + 1
+                    break
 
         ## Unlike the mb example code, disregard different track artists
         track_tuples = []
         for track in release['medium-list'][0]['track-list']:
-            ## TODO: This needs to be implemented for real.
-            on_disc = True
-
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_tuple = (disc_id, artist_sort_name, year, title, formatted_track_num, track['recording']['title'], on_disc)
+            track_tuple = (disc_id, artist_sort_name, year, title, formatted_track_num, track['recording']['title'], disc_num, disc_count)
 
             track_tuples.append(track_tuple)
 
