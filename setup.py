@@ -7,8 +7,10 @@ import glob
 import os
 import sys
 
+import ripwhine
+
 NAME = 'ripwhine'
-VERSION = '1.3.0' # Maybe parse from git tag some day
+VERSION = ripwhine.__version__ # Maybe parse from git tag some day
 
 AUTHOR_EMAIL = 'mjt@fadconsulting.com'
 URL = 'http://github.com/mjtorn/ripwhine'

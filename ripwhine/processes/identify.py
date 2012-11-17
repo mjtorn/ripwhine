@@ -1,11 +1,12 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
+import musicbrainz2.disc as mbdisc
+
 import logging
 
 import multiprocessing
 
-import musicbrainz2.disc as mbdisc
-import musicbrainz2.webservice as mbws
+import musicbrainzngs
 
 import subprocess
 
@@ -13,14 +14,15 @@ import sys
 
 import traceback
 
+from .. import __version__
+
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
 ## MusicBrainz needs some setting up
-service = mbws.WebService()
-query = mbws.Query(service)
+musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn/ripwhine/')
 
 class Identify(object):
     """Process persisting to do identifys on command
@@ -56,6 +58,7 @@ class Identify(object):
         """Drrn drrn
         """
 
+        ## XXX: Do we really need the old library for this?
         try:
             disc = mbdisc.readDisc(deviceName='/dev/sr0')
         except mbdisc.DiscError, e:
@@ -66,97 +69,88 @@ class Identify(object):
             return
 
         disc_id = disc.getId()
-        disc_uuid = disc.getId()
+        submission_url = mbdisc.getSubmissionUrl(disc)
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
+        ## XXX: The library doesn't understand a tuple here
+        includes = ['artist-credits', 'release-rels', 'recordings']
         try:
-            release_filter = mbws.ReleaseFilter(discId=disc_id)
-            releases = query.getReleases(release_filter)
-        except mbws.WebServiceError, e:
+            data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
+        except musicbrainzngs.ResponseError, e:
+            ## Fake response to make flow easier
+            if e.cause.code == 404:
+                data = {
+                    'disc': {
+                        'id': disc_id,
+                        'release-list': []
+                    }
+                }
+            else:
+                raise
+        except Exception, e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
+
+        releases = data['disc']['release-list']
 
         logger.info('[SUCCESS] Got %d releases' % len(releases))
 
         if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
-            submission_url = mbdisc.getSubmissionUrl(disc)
             self.interface.queue_to_identify_interface.send(submission_url)
 
             return
         elif len(releases) > 1:
             logger.warn('[DISC] Got %d releases, running with the first one!' % len(releases))
 
-        ## Use the first release
-        release = releases[0].release
-
-        submission_url = mbdisc.getSubmissionUrl(disc)
-
-        ## Need to get additional data separately
-        try:
-            # releaseEvents required to get year
-            release_includes = mbws.ReleaseIncludes(artist=True, tracks=True, releaseEvents=True, releaseRelations=True)
-
-            try:
-                release = query.getReleaseById(release.getId(), release_includes)
-            except TypeError, e:
-                logger.error('[FAIL] %s' % e)
-                logger.error(''.join(traceback.format_exception(*sys.exc_info())))
-                logger.error('[CLUE] %s' % submission_url)
-
-                return
-        except mbws.WebServiceError, e:
-            logger.error('[FAIL] %s' % e)
-            logger.error(''.join(traceback.format_exception(*sys.exc_info())))
-            self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
-
-            return
-
-        ## For at least some records, it gets called a remaster
-        ## even if it only lists remastered versions in the disc view.
-        ## Investigate later.
-
-        #is_remaster = False
-        #for r in release.getRelations():
-        #    if r.getType().lower().endswith('remaster'):
-        #        is_remaster = True
-        #        break
+        ## XXX Use the first release now, need to prompt in the future
+        release = releases[0]
 
         logger.info('[URL] %s' % submission_url)
 
-        ## release.tracks contains tracks not on this actual disc, cope
-        disc_tracks = disc.getTracks()
+        ## Disc title
+        title = release['title']
+        if release.has_key('disambiguation') and release['disambiguation']:
+            title = '%s (%s)' % (title, release['disambiguation'])
 
-        ## Unlike the mb example code, disregard different track artists
-        track_num = 1
-        track_tuples = []
-        for track in release.tracks:
-            ## XXX TODO FIXME Just do it, gonna use NGS for disc stuff anyway in the future
-            on_disc = True
-            for disc_track in disc_tracks:
-                dt_offset, dt_length = disc_track
-                # The ratio is somewhat precisely 1.0 / 75 * 1000 == 13.333
-                dt_len_seconds = dt_length * 1000 / 75
-                if dt_len_seconds == track.duration:
-                    on_disc = True
+        ## Require release date
+        date = data['disc']['release-list'][0]['date']
+        if not date:
+            self.interface.queue_to_identify_interface.send('NO_DATE')
+
+            return
+
+        year = date.split('-', 1)[0]
+
+        ## 0th artist...
+        if len(release['artist-credit']) > 1:
+            self.interface.queue_to_identify_interface.send('TOO_MANY_ARTISTS')
+
+            return
+
+        artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
+
+        ## Media count
+        disc_num = 1
+        disc_count = len(release['medium-list'])
+        if disc_count > 1:
+            for medium_n in xrange(len(release['medium-list'])):
+                medium = release['medium-list'][medium_n]
+                if disc_id in [d['id'] for d in medium['disc-list']]:
+                    disc_num = medium_n + 1
                     break
 
-            formatted_track_num = '%02d' % track_num
+        ## Unlike the mb example code, disregard different track artists
+        track_tuples = []
+        for track in release['medium-list'][medium_n]['track-list']:
+            formatted_track_num = '%02d' % int(track['number'])
 
-            year = release.getEarliestReleaseDate()
-            year = year.split('-')[0] # disregard the exact date
-
-            title = release.title
-            #if is_remaster:
-            #    title = '%s (remaster)' % title
-            track_tuple = (disc_id, release.artist.sortName, year, title, formatted_track_num, track.title, on_disc)
-
-            track_num += 1
+            track_tuple = (disc_id, artist_sort_name, year, title, formatted_track_num, track['recording']['title'], disc_num, disc_count)
 
             track_tuples.append(track_tuple)
 

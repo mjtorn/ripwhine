@@ -57,6 +57,11 @@ class Rip(object):
         """
 
         disc_id, artist, year, disc = track_tuples[0][:4]
+        (disc_num, disc_count) = track_tuples[0][-2:]
+
+        # Wish we could have / in directories
+        if disc_count > 1:
+            disc = '%s (%d/%d)' % (disc, disc_num, disc_count)
 
         artist = artist.replace('/', '-')
         disc = disc.replace('/', '-')
@@ -148,17 +153,13 @@ class Rip(object):
         for track in track_tuples:
             track_num = track[4]
             track_name = track[5]
-            on_disc = track[6]
-            if not on_disc:
-                logger.warn('[IGNORE] Not on disc: %s' % track_name)
-                continue
 
-            retval = self.rip_track(track[-3:-1], fail)
+            retval = self.rip_track(track[-4:-2], fail)
             if retval:
                 logger.error('[FAIL] Command died on status %s' % retval)
                 self.interface.queue_to_rip_interface.send('FAILED_RIP')
                 return
-                
+
             logger.info('[SUCCESS] %s. %s' % track[-2:])
 
             self.interface.queue_to_encode.send('START_ENCODE')
