@@ -96,6 +96,9 @@ class Interface(object):
 
         if self.track_tuples:
             disc_id, artist, year, disc = self.track_tuples[0][:4]
+            (disc_num, disc_count) = self.track_tuples[0][-2:]
+            if disc_count > 1:
+                disc = '%s (%d/%d)' % (disc, disc_num, disc_count)
             heading = '%s: %s - %s (%s)' % (disc_id, artist, disc, year)
 
             print heading
