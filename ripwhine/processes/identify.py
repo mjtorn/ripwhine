@@ -115,16 +115,23 @@ class Identify(object):
 
         ## Disc title
         title = release['title']
-        if release.has_key('disambiguation') and release['disambiguation']:
-            title = '%s (%s)' % (title, release['disambiguation'])
-        else:
-            is_remaster = False
-            for rel_release in release.get('release-relation-list', ()):
-                if rel_release.get('type', None) == 'remaster':
-                    is_remaster = True
-                    break
-            if is_remaster:
-                title = '%s (%s)' % (title, 'remaster')
+        disambiguation = release.get('disambiguation', None)
+        is_remaster = False
+        for rel_release in release.get('release-relation-list', ()):
+            if rel_release.get('type', None) == 'remaster':
+                is_remaster = True
+                break
+
+        extra_str = ''
+        if disambiguation:
+            extra_str = '%s' % disambiguation
+        if is_remaster:
+            extra_str = '%s remaster' % extra_str
+
+        extra_str = extra_str.strip()
+
+        if extra_str:
+            title = '%s (%s)' % (title, extra_str)
 
         ## Require release date
         date = data['disc']['release-list'][0]['date']
