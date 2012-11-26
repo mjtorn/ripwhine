@@ -77,10 +77,7 @@ class Interface(object):
         """Toggle wether or not cdparanoia fails on a bad rip
         """
 
-        if self.fail:
-            self.fail = False
-        else:
-            self.fail = True
+        self.fail = not self.fail
 
     @staticmethod
     def print_menu(self):
