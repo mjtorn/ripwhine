@@ -73,6 +73,7 @@ class Identify(object):
 
         disc_id = disc.getId()
         submission_url = mbdisc.getSubmissionUrl(disc)
+        logger.info('[URL] %s' % submission_url)
 
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
@@ -113,8 +114,6 @@ class Identify(object):
 
         ## XXX Use the first release now, need to prompt in the future
         release = releases[0]
-
-        logger.info('[URL] %s' % submission_url)
 
         ## Disc title
         title = release['title']
