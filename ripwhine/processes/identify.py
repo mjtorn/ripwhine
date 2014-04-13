@@ -24,6 +24,9 @@ if not logger.handlers:
 ## MusicBrainz needs some setting up
 musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn/ripwhine/')
 
+## Maybe this should be a configurable
+DEVICE = '/dev/cdrom'
+
 class Identify(object):
     """Process persisting to do identifys on command
     """
@@ -60,7 +63,7 @@ class Identify(object):
 
         ## XXX: Do we really need the old library for this?
         try:
-            disc = mbdisc.readDisc(deviceName='/dev/sr0')
+            disc = mbdisc.readDisc(deviceName=DEVICE)
         except mbdisc.DiscError, e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
