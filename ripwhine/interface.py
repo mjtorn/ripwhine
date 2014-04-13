@@ -34,6 +34,7 @@ class Interface(object):
         self.destination_dir = DEFAULT_DIR
 
         self.fail = True
+        self.ejected = False
 
         if not os.path.exists(self.destination_dir):
             os.mkdir(self.destination_dir)
