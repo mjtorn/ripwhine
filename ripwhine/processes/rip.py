@@ -19,6 +19,9 @@ if not logger.handlers:
 
 CDPARANOIA_BINARY = 'cdparanoia'
 
+## Because it's not autosensed by cdparanoia for whatever reason
+DEVICE = '/dev/cdrom'
+
 class Rip(object):
     """Process persisting to do rips on command
     """
@@ -103,7 +106,7 @@ class Rip(object):
 
         wav_destination = os.path.join(self.path_to_disc, filename)
 
-        cmd = [CDPARANOIA_BINARY]
+        cmd = [CDPARANOIA_BINARY, '-d', DEVICE]
         if fail:
             cmd.append('-X')
         cmd.append(track_data[0])
