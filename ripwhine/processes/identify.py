@@ -98,6 +98,10 @@ class Identify(object):
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
 
             return
+        else:
+            if not data:
+                logger.error('[FAIL] No data returned. Check submission url')
+                return
 
         releases = data['disc']['release-list']
 
