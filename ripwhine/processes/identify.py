@@ -140,7 +140,7 @@ class Identify(object):
             title = '%s (%s)' % (title, extra_str)
 
         ## Require release date
-        date = data['disc']['release-list'][0]['date']
+        date = release['date']
         if not date:
             self.interface.queue_to_identify_interface.send('NO_DATE')
 
