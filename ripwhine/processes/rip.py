@@ -63,7 +63,9 @@ class Rip(object):
         (disc_num, disc_count) = track_tuples[0][-2:]
 
         # Wish we could have / in directories
-        if disc_count > 1:
+        if disc_count > 9:
+            disc = '%s (%02d/%02d)' % (disc, disc_num, disc_count)
+        elif disc_count > 1:
             disc = '%s (%d/%d)' % (disc, disc_num, disc_count)
 
         artist = artist.replace('/', '-')
