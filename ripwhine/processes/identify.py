@@ -156,16 +156,21 @@ class Identify(object):
 
         artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
 
-        ## Media count
+        ## Media count and name
         disc_num = 1
         disc_count = len(release['medium-list'])
         medium_n = 0
+        media_name = None
         if disc_count > 1:
-            for medium_n in xrange(len(release['medium-list'])):
-                medium = release['medium-list'][medium_n]
+            for medium_n, medium in enumerate(release['medium-list']):
+                media_name = medium['title']
                 if disc_id in [d['id'] for d in medium['disc-list']]:
                     disc_num = medium_n + 1
                     break
+
+        # Pass the media_name along if required
+        if media_name != title:
+            title = '%s: %s' % (title, media_name)
 
         ## Unlike the mb example code, disregard different track artists
         track_tuples = []
