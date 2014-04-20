@@ -97,7 +97,7 @@ class Rip(object):
         """
 
         ## Num and name
-        filename = u'%s. %s' % track_data
+        filename = '%s. %s' % track_data
         filename = filename.replace('/', '-')
 
         filename = '%s.wav' % filename

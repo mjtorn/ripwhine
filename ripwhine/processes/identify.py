@@ -120,7 +120,7 @@ class Identify(object):
         release = releases[0]
 
         ## Disc title
-        title = release['title']
+        title = release['title'].encode('utf-8')
         disambiguation = release.get('disambiguation', None)
         is_remaster = False
         for rel_release in release.get('release-relation-list', ()):
