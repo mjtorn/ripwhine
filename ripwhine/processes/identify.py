@@ -169,7 +169,7 @@ class Identify(object):
                     break
 
         # Pass the media_name along if required
-        if media_name != title:
+        if media_name is not None and media_name != title:
             title = '%s: %s' % (title, media_name)
 
         ## Unlike the mb example code, disregard different track artists
