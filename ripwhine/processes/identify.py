@@ -162,7 +162,7 @@ class Identify(object):
 
         ## Media count and name
         disc_num = 1
-        disc_count = len(release['medium-list'])
+        disc_count = release['medium-count']
         medium_n = 0
         media_name = None
         if disc_count > 1:
