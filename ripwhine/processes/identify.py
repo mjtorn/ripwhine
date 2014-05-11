@@ -167,7 +167,8 @@ class Identify(object):
         media_name = None
         if disc_count > 1:
             for medium_n, medium in enumerate(release['medium-list']):
-                media_name = medium['title']
+                if 'title' in medium:
+                    media_name = medium['title']
                 if disc_id in [d['id'] for d in medium['disc-list']]:
                     disc_num = medium_n + 1
                     break
