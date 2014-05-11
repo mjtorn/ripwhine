@@ -93,19 +93,22 @@ class Interface(object):
             print fail_str % 'not '
 
         if self.track_tuples:
-            disc_id, artist, year, disc = self.track_tuples[0][:4]
-            (disc_num, disc_count) = self.track_tuples[0][-2:]
-            if disc_count > 9:
-                disc = '%s (%02d/%02d)' % (disc, disc_num, disc_count)
-            elif disc_count > 1:
-                disc = '%s (%d/%d)' % (disc, disc_num, disc_count)
-            heading = '%s: %s - %s (%s)' % (disc_id, artist, disc, year)
+            # Use the first one for disc info
+            track_tuple = self.track_tuples[0]
+
+            if track_tuple.disc_count > 9:
+                disc = '%s (%02d/%02d)' % (track_tuple.title, track_tuple.disc_num, track_tuple.disc_count)
+            elif track_tuple.disc_count > 1:
+                disc = '%s (%d/%d)' % (track_tuple.title, track_tuple.disc_num, track_tuple.disc_count)
+            else:
+                disc = track_tuple.title
+
+            if track_tuple.media_name is not None:
+                disc = '%s %s' % (disc, track_tuple.media_name)
+
+            heading = '%s: %s - %s (%s)' % (track_tuple.disc_id, track_tuple.artist, disc, track_tuple.year)
 
             print heading
-
-            for track in self.track_tuples:
-                on_disc = track[6]
-                print ' * %s. %s %s' % (track[4], track[5], 'NOT ON DISC' if not on_disc else '')
         else:
             print '*** NO DISC ***'
             print self.info_text
