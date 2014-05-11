@@ -2,11 +2,11 @@
 RIPWHINE - an easy-to-use single purpose ripper and encoder
 ####
 
-Requires ``python-musicbrainz2``
+Requires ``musicbrainzngs``
 
 Not configurable, you can set the destination dir in the UI.
 
-A one-day hack job.
+Originally a one-day hack job, but I guess it keeps improving slowly
 
 Usage
 -----
@@ -30,7 +30,7 @@ by artists alphabetically and discs by year.
 The output is a directory for the artist, and sub-directories
 for discs named "Year - Album Name."
 
-That gets a bit tricky when using the shell to play music so a
+The year might be a bit tricky when using the shell to play music so a
 symlink is set up for the album as well.
 
 Next to the flacs is a file ``musicbrainz.id`` with the disc id
@@ -60,7 +60,6 @@ Would be nice if:
 
 * we were tied to the optical drive's events to automatically identify discs
 * better output from cdparanoia and flac
-* eject button in the UI
 
 An original vision was that ripwhine would create a list
 of your music. That didn't make it during the day and should
@@ -85,6 +84,5 @@ License
     Everyone is permitted to fork and modify and redistribute the code
     as long as the original author's name is visible somewhere.
 
-If you got good ideas, push them back to avoid freetard fork hell.
-
+If you got good ideas, push them back plz.
 
