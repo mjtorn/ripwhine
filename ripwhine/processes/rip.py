@@ -55,23 +55,25 @@ class Rip(object):
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
-    def check_destination(self, track_tuples):
+    def check_destination(self, track_tuple):
         """Make sure we know where the music goes
         """
 
-        disc_id, artist, year, disc = track_tuples[0][:4]
-        (disc_num, disc_count) = track_tuples[0][-2:]
+        ## This is essentially copypasta from interface.py...
+        if track_tuple.disc_count > 9:
+            disc = '%s (%02d/%02d)' % (track_tuple.title, track_tuple.disc_num, track_tuple.disc_count)
+        elif track_tuple.disc_count > 1:
+            disc = '%s (%d/%d)' % (track_tuple.title, track_tuple.disc_num, track_tuple.disc_count)
+        else:
+            disc = track_tuple.title
 
-        # Wish we could have / in directories
-        if disc_count > 9:
-            disc = '%s (%02d/%02d)' % (disc, disc_num, disc_count)
-        elif disc_count > 1:
-            disc = '%s (%d/%d)' % (disc, disc_num, disc_count)
+        if track_tuple.media_name is not None:
+            disc = '%s %s' % (disc, track_tuple.media_name)
 
-        artist = artist.replace('/', '-')
+        artist = track_tuple.artist.replace('/', '-')
         disc = disc.replace('/', '-')
 
-        year_disc = '%s - %s' % (year, disc)
+        year_disc = '%s - %s' % (track_tuple.year, disc)
 
         path_to_artist = os.path.join(self.interface.destination_dir, artist)
         path_to_disc = os.path.join(path_to_artist, year_disc)
@@ -89,17 +91,17 @@ class Rip(object):
 
         ## Create a file with the mbid used
         f = open(os.path.join(path_to_disc, 'musicbrainz.id'), 'wb')
-        f.write('%s\n' % disc_id)
+        f.write('%s\n' % track_tuple.disc_id)
         f.close()
 
         self.path_to_disc = path_to_disc
 
-    def rip_track(self, track_data, fail):
+    def rip_track(self, track_num, track_title, fail):
         """Rip one track
         """
 
         ## Num and name
-        filename = '%s. %s' % track_data
+        filename = '%s. %s' % (track_num, track_title)
         filename = filename.replace('/', '-')
 
         filename = '%s.wav' % filename
@@ -111,7 +113,7 @@ class Rip(object):
         cmd = [CDPARANOIA_BINARY, '-d', DEVICE]
         if fail:
             cmd.append('-X')
-        cmd.append(track_data[0])
+        cmd.append(track_num)
         cmd.append(wav_destination)
         logger.debug(cmd)
 
@@ -148,7 +150,7 @@ class Rip(object):
 
         ## Is the destination safe?
         try:
-            self.check_destination(track_tuples)
+            self.check_destination(track_tuples[0])
         except IOError, e:
             logger.error('[FAIL] %s' % e)
             self.interface.queue_to_rip_interface.send('FAILED_RIP')
@@ -156,10 +158,7 @@ class Rip(object):
 
         ## Because we wait on subprocess.call(), no need to verify states
         for track in track_tuples:
-            track_num = track[4]
-            track_name = track[5]
-
-            retval = self.rip_track(track[-4:-2], fail)
+            retval = self.rip_track(track.formatted_track_num, track.track_title, fail)
             if retval:
                 logger.error('[FAIL] Command died on status %s' % retval)
                 self.interface.queue_to_rip_interface.send('FAILED_RIP')
@@ -168,7 +167,7 @@ class Rip(object):
             logger.info('[SUCCESS] %s. %s' % track[-2:])
 
             self.interface.queue_to_encode.send('START_ENCODE')
-            self.interface.queue_to_encode.send((self.path_to_disc, (track_num, track_name)))
+            self.interface.queue_to_encode.send((self.path_to_disc, (track.formatted_track_num, track.track_title)))
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
