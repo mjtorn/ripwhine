@@ -27,6 +27,10 @@ musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn
 ## Maybe this should be a configurable
 DEVICE = '/dev/cdrom'
 
+## Large tuples are terrible to deal with
+from collections import namedtuple
+TrackTuple = namedtuple('TrackTuple', 'disc_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+
 class Identify(object):
     """Process persisting to do identifys on command
     """
@@ -168,16 +172,16 @@ class Identify(object):
                     disc_num = medium_n + 1
                     break
 
-        # Pass the media_name along if required
-        if media_name is not None and media_name != title:
-            title = '%s: %s' % (title, media_name)
+        # Pass the media_name along if required, otherwise it's None
+        if media_name is not None and media_name == title:
+            media_name = None
 
         ## Unlike the mb example code, disregard different track artists
         track_tuples = []
         for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_tuple = (disc_id, artist_sort_name, year, title, formatted_track_num, track['recording']['title'], disc_num, disc_count)
+            track_tuple = TrackTuple(disc_id=disc_id, artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track['recording']['title'], disc_num=disc_num, disc_count=disc_count, media_name=media_name)
 
             track_tuples.append(track_tuple)
 
