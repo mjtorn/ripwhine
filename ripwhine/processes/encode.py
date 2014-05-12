@@ -57,17 +57,18 @@ class Encode(object):
         """
 
         ## Num and name
-        filename = '%s. %s' % track_data
+        filename = u'%s. %s' % track_data
         filename = filename.replace('/', '-')
+        filename = filename.encode('utf-8')
 
         bkp_filename = filename
 
-        logger.info(u'[ENC NAME] File name %d bytes: %s' % (len(filename.encode('utf-8')), filename))
+        logger.info('[ENC NAME] File name %d bytes: %s' % (len(filename), filename))
 
         ## Potential mangling required
         # fs limit is 256
         if len(filename) > 251:
-            logger.warn(u'[WAV NAME] Long file name %d bytes' % len(filename.encode('utf-8')))
+            logger.warn('[WAV NAME] Long file name %d bytes' % len(filename))
             filename = filename[:251]
 
             wav_source = os.path.join(self.path_to_disc, filename)
@@ -79,7 +80,7 @@ class Encode(object):
 
         # fs limit is 256, 5 bytes for '.flac'
         if len(filename) > 251:
-            logger.warn(u'[FLAC NAME] Long file name %d bytes' % len(filename.encode('utf-8')))
+            logger.warn('[FLAC NAME] Long file name %d bytes' % len(filename))
             filename = filename[:251]
 
         flac_destination = os.path.join(self.path_to_disc, '%s.flac' % filename)
