@@ -101,12 +101,13 @@ class Rip(object):
         """
 
         ## Num and name
-        filename = '%s. %s' % (track_num, track_title)
+        filename = u'%s. %s' % (track_num, track_title)
         filename = filename.replace('/', '-')
 
         filename = '%s.wav' % filename
+        filename = filename.encode('utf-8')
 
-        logger.info(u'[RIP NAME] File name %d bytes: %s' % (len(filename.encode('utf-8')), filename))
+        logger.info('[RIP NAME] File name %d bytes: %s' % (len(filename), filename))
 
         wav_destination = os.path.join(self.path_to_disc, filename)
 
