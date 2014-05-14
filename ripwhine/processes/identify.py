@@ -107,7 +107,13 @@ class Identify(object):
                 logger.error('[FAIL] No data returned. Check submission url')
                 return
 
-        releases = data['disc']['release-list']
+        try:
+            releases = data['disc']['release-list']
+        except KeyError:
+            if 'cdstub' in data:
+                logger.warn('[DISC] This release is only a stub, fill it in at MusicBrainz')
+                self.interface.queue_to_identify_interface.send('NO_DATA')
+                return
 
         logger.info('[SUCCESS] Got %d releases' % len(releases))
 
