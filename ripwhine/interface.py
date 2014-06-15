@@ -2,6 +2,8 @@
 
 from ripwhine import actions, processes
 
+import copy
+
 import multiprocessing
 
 import logging
@@ -41,26 +43,17 @@ class Interface(object):
 
         # Some of these are for testing
         self.items = [
-            ['d', 'dir [%s]' % self.destination_dir],
-            ('i', 'identify'),
-            ('r', 'rip'),
-            ('e', 'eject'),
-            ('f', 'toggle fail'),
-            ('p', 'print menu'),
-            ('s', 'sleep'),
-            ('q', 'exit'),
+            ('d', ['dir [%s]' % self.destination_dir, actions.change_dir]),
+            ('i', ('identify', actions.identify)),
+            ('r', ('rip', actions.start_rip)),
+            ('e', ('eject', actions.eject)),
+            ('f', ('toggle fail', self.toggle_fail)),
+            ('p', ('print menu', self.print_menu)),
+            ('s', ('sleep', actions.sleep_process)),
+            ('q', ('exit', lambda interface: False)),
         ]
 
-        self.actions = (
-            ('d', actions.change_dir),
-            ('i', actions.identify),
-            ('r', actions.start_rip),
-            ('e', actions.eject),
-            ('f', self.toggle_fail),
-            ('p', self.print_menu),
-            ('s', actions.sleep_process),
-            ('q', lambda interface: False),
-        )
+        self.items_bkp = copy.copy(self.items)
 
         # Set up communications
         self.queue_to_rip, self.queue_to_rip_interface = multiprocessing.Pipe()
@@ -117,7 +110,45 @@ class Interface(object):
         print
 
         for item in self.items:
-            print '%s. %s' % (item[0], item[1])
+            print '%s. %s' % (item[0], item[1][0])
+
+    def set_releases(self, releases):
+        """Deal with having multiple releases
+        """
+
+        self.items = []
+        for i, release in enumerate(releases):
+            choice = i + 1  # Make it faster to type than 0
+
+            rel_id = release['id']
+            artist_credit = release['artist-credit-phrase']
+            labels = release['label-info-list']
+            medium_count = release['medium-count']
+            rel_events = release['release-event-list']
+            title = release['title']
+            date = release.get('date', None)
+            if date is not None:
+                year = date.split('-')[0]
+            else:
+                year = 'XXXX'
+
+            item = ''
+
+            item += '%s\n' % (rel_id)
+            item += '   %s\n' % (artist_credit,)
+            item += '   [%s] %s (%d disc)\n' % (year, title, medium_count)
+
+            for label in labels:
+                cat_no = label['catalog-number']
+                label_name = label['label']['name']
+                item += '   %s (%s)\n' % (label_name, cat_no)
+
+            for rel_event in rel_events:
+                area = rel_event.get('area', None)
+                if area is not None:
+                    item += '   %s\n' % area['name']
+
+            self.items.append((choice, (item, lambda choice: choice)))
 
     def handle_input(self, poll):
         """Read user input, validate, execute. Return True if more loops required
@@ -127,14 +158,24 @@ class Interface(object):
         poll.poll()
         action = sys.stdin.read(1)
 
+        ## Are we selecting a release?
         if action.isdigit():
             action = int(action)
 
+            # See if we're anywhere near ok
+            if action < 1 or action > len(self.items):
+                return True
+
+            idx = action - 1
+
         ## Call our action, giving ourself as interface argument
         if dict(self.items).has_key(action):
-            retval = dict(self.actions)[action](self)
+            retval = dict(self.items)[action][1](self)
             if retval is not None:
                 return retval
+
+        ## Usually we want the default menu
+        self.items = copy.copy(self.items_bkp)
 
         return True
 
@@ -181,6 +222,14 @@ class Interface(object):
                         self.track_tuples = None
                         submission_url = self.queue_to_identify.recv()
                         self.info_text = submission_url
+                    elif from_identify == 'MULTIPLE_RELEASES':
+                        logger.warn('Got multiple releases')
+                        self.track_tuples = None
+                        releases = self.queue_to_identify.recv()
+                        logger.warn('%d' % len(releases))
+                        self.info_text = 'Please select a release'
+                        logger.info('Please select a release')
+                        self.set_releases(releases)
         finally:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
