@@ -135,12 +135,11 @@ class Interface(object):
             else:
                 year = 'XXXX'
 
+            media_name = None
             if medium_count > 1:
                 for medium_n, medium in enumerate(release['medium-list']):
                     if 'title' in medium:
                         media_name = medium['title']
-            else:
-                media_name = None
 
             item = ''
 
