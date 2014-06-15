@@ -152,7 +152,7 @@ class Interface(object):
                 item = '%s\n'% item
 
             for label in labels:
-                cat_no = label['catalog-number']
+                cat_no = label.get('catalog-number', 'UNKNOWN')
                 label_name = label['label']['name']
                 item = '%s   %s (%s)\n' % (item, label_name, cat_no)
 
