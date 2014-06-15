@@ -94,7 +94,7 @@ def check_release(cur_dir, files):
                 input_choice = read_input(poll)
 
                 if input_choice is None:
-                    raise StopIteration('DONE!')
+                    continue
 
                 max_choice = print_releases(releases)
 
