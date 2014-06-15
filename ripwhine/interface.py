@@ -135,11 +135,22 @@ class Interface(object):
             else:
                 year = 'XXXX'
 
+            if medium_count > 1:
+                for medium_n, medium in enumerate(release['medium-list']):
+                    if 'title' in medium:
+                        media_name = medium['title']
+            else:
+                media_name = None
+
             item = ''
 
             item = '%s\n' % (rel_id)
             item = '%s   %s\n' % (item, artist_credit,)
-            item = '%s   [%s] %s (%d disc)\n' % (item, year, title, medium_count)
+            item = '%s   [%s] %s (%d disc)' % (item, year, title, medium_count)
+            if media_name is not None:
+                item = '%s %s\n' % (item, media_name)
+            else:
+                item = '%s\n'% item
 
             for label in labels:
                 cat_no = label['catalog-number']
