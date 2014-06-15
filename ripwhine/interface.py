@@ -134,19 +134,19 @@ class Interface(object):
 
             item = ''
 
-            item += '%s\n' % (rel_id)
-            item += '   %s\n' % (artist_credit,)
-            item += '   [%s] %s (%d disc)\n' % (year, title, medium_count)
+            item = '%s\n' % (rel_id)
+            item = '%s   %s\n' % (item, artist_credit,)
+            item = '%s   [%s] %s (%d disc)\n' % (item, year, title, medium_count)
 
             for label in labels:
                 cat_no = label['catalog-number']
                 label_name = label['label']['name']
-                item += '   %s (%s)\n' % (label_name, cat_no)
+                item = '%s   %s (%s)\n' % (item, label_name, cat_no)
 
             for rel_event in rel_events:
                 area = rel_event.get('area', None)
                 if area is not None:
-                    item += '   %s\n' % area['name']
+                    item = '%s   %s\n' % (item, area['name'])
 
             self.items.append((choice, (item, lambda choice: choice)))
 
