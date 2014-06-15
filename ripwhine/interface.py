@@ -147,7 +147,7 @@ class Interface(object):
             item = '%s   %s\n' % (item, artist_credit,)
             item = '%s   [%s] %s (%d disc)' % (item, year, title, medium_count)
             if media_name is not None:
-                item = '%s %s\n' % (item, media_name)
+                item = '%s including %s\n' % (item, media_name)
             else:
                 item = '%s\n'% item
 
