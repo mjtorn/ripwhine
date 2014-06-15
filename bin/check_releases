@@ -90,7 +90,7 @@ def check_release(cur_dir, files):
             max_choice = print_releases(releases)
 
             input_choice = -1
-            while input_choice < 0 or input_choice > max_choice:
+            while input_choice < 1 or input_choice > max_choice:
                 input_choice = read_input(poll)
 
                 if input_choice is None:
