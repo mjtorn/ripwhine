@@ -96,9 +96,7 @@ def check_release(cur_dir, files):
                 if input_choice is None:
                     raise StopIteration('DONE!')
 
-                if input_choice > max_choice:
-                    max_choice = print_releases(releases)
-                    continue
+                max_choice = print_releases(releases)
 
 def main(path):
     old_settings = termios.tcgetattr(sys.stdin)
