@@ -1,0 +1,123 @@
+#!/usr/bin/env python
+# vim: fileencoding=utf-8
+
+from ripwhine import __version__
+
+import musicbrainzngs
+
+import os
+import select
+import sys
+import termios
+import tty
+
+ID_FILE = 'musicbrainz.id'
+REL_FILE = 'musicbrainz.release'
+
+INCLUDES = ['artist-credits', 'labels', 'release-rels', 'recordings']
+
+musicbrainzngs.set_useragent('Ripwhine Release Checker', __version__, 'https://github.com/mjtorn/ripwhine/')
+
+def print_releases(releases):
+    """Print a kind of menu
+    """
+
+    for i, release in enumerate(releases):
+        choice = i + 1  # Make it faster to type than 0
+
+        rel_id = release['id']
+        artist_credit = release['artist-credit-phrase']
+        labels = release['label-info-list']
+        medium_count = release['medium-count']
+        rel_events = release['release-event-list']
+        title = release['title']
+        date = release.get('date', None)
+        if date is not None:
+            year = date.split('-')[0]
+        else:
+            year = 'XXXX'
+
+        print '%d) %s' % (choice, rel_id)
+        print '   %s' % (artist_credit,)
+        print '   [%s] %s (%d disc)' % (year, title, medium_count)
+
+        for label in labels:
+            cat_no = label['catalog-number']
+            label_name = label['label']['name']
+            print '   %s (%s)' % (label_name, cat_no)
+
+        for rel_event in rel_events:
+            area = rel_event.get('area', None)
+            if area is not None:
+                print '   %s' % area['name']
+
+        ## :D
+        # import pprint; pprint.pprint(release)
+        # sys.exit(1)
+
+    return choice
+
+def read_input(poll):
+    """Get the release number from the user. Returns None if more prompting needed
+    """
+
+    print '>>> '
+    poll.poll()
+    action = sys.stdin.read(1)
+
+    if action.isdigit():
+        return int(action)
+    elif action == 'q':
+        raise StopIteration('QUIT!')
+
+    return None
+
+def check_release(*args):
+    state, dir, files = args
+
+    if ID_FILE in files and not REL_FILE in files:
+        poll = select.poll()
+        poll.register(sys.stdin, select.POLLIN)
+        id_path = os.path.join(dir, ID_FILE)
+        with open(id_path, 'rb') as id_f:
+            disc_id = id_f.read().strip()
+            print disc_id
+            data = musicbrainzngs.get_releases_by_discid(disc_id, includes=INCLUDES)
+
+            releases = data['disc']['release-list']
+
+            max_choice = print_releases(releases)
+
+            input_choice = -1
+            while input_choice < 0 or input_choice > max_choice:
+                input_choice = read_input(poll)
+
+                if input_choice is None:
+                    raise StopIteration('DONE!')
+
+                if input_choice > max_choice:
+                    max_choice = print_releases(releases)
+                    continue
+
+def main(path):
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+
+        state = {}
+
+        try:
+            os.path.walk(path, check_release, state)
+        except StopIteration, e:
+            print e
+
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1]))
+
+# EOF
+
