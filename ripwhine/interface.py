@@ -66,6 +66,9 @@ class Interface(object):
         # submission url or anything else
         self.info_text = None
 
+        # What we're doing
+        self.action = None
+
     @staticmethod
     def toggle_fail(self):
         """Toggle wether or not cdparanoia fails on a bad rip
@@ -148,7 +151,7 @@ class Interface(object):
                 if area is not None:
                     item = '%s   %s\n' % (item, area['name'])
 
-            self.items.append((choice, (item, lambda choice: choice)))
+            self.items.append((choice, (item, self.select_release)))
 
     def handle_input(self, poll):
         """Read user input, validate, execute. Return True if more loops required
@@ -156,17 +159,15 @@ class Interface(object):
 
         print '>>> '
         poll.poll()
-        action = sys.stdin.read(1)
+        self.action = action = sys.stdin.read(1)
 
         ## Are we selecting a release?
         if action.isdigit():
-            action = int(action)
+            self.action = action = int(action)
 
             # See if we're anywhere near ok
             if action < 1 or action > len(self.items):
                 return True
-
-            idx = action - 1
 
         ## Call our action, giving ourself as interface argument
         if dict(self.items).has_key(action):
@@ -178,6 +179,14 @@ class Interface(object):
         self.items = copy.copy(self.items_bkp)
 
         return True
+
+    @staticmethod
+    def select_release(self):
+        """Speshul method to talk to identify
+        """
+
+        # Remember, action is list index + 1
+        self.queue_to_identify.send(self.action - 1)
 
     def run(self):
         """Work-horse, nay, pwny
