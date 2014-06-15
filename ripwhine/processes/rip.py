@@ -94,6 +94,11 @@ class Rip(object):
         f.write('%s\n' % track_tuple.disc_id)
         f.close()
 
+        ## And the release
+        f = open(os.path.join(path_to_disc, 'musicbrainz.release'), 'wb')
+        f.write('%s\n' % track_tuple.release_id)
+        f.close()
+
         self.path_to_disc = path_to_disc
 
     def rip_track(self, track_num, track_title, fail):

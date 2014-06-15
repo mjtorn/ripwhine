@@ -52,7 +52,7 @@ def change_dir(interface):
             interface.destination_dir = destination_dir
 
             # I know this is hacky and ugly.
-            interface.items[0][1] = 'dir [%s]' % interface.destination_dir
+            interface.items[0][0] = 'dir [%s]' % interface.destination_dir
 
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)

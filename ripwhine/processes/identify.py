@@ -29,7 +29,7 @@ DEVICE = '/dev/cdrom'
 
 ## Large tuples are terrible to deal with
 from collections import namedtuple
-TrackTuple = namedtuple('TrackTuple', 'disc_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+TrackTuple = namedtuple('TrackTuple', 'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
 
 class Identify(object):
     """Process persisting to do identifys on command
@@ -82,7 +82,7 @@ class Identify(object):
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
         ## XXX: The library doesn't understand a tuple here
-        includes = ['artist-credits', 'release-rels', 'recordings']
+        includes = ['artist-credits', 'labels', 'release-rels', 'recordings']
         try:
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
         except musicbrainzngs.ResponseError, e:
@@ -115,6 +115,9 @@ class Identify(object):
                 self.interface.queue_to_identify_interface.send('NO_DATA')
                 return
 
+        # Make the chance slimmer that selecting a release breaks if mb sends results in odd orders
+        releases.sort()
+
         logger.info('[SUCCESS] Got %d releases' % len(releases))
 
         if len(releases) == 0:
@@ -124,10 +127,15 @@ class Identify(object):
 
             return
         elif len(releases) > 1:
-            logger.warn('[DISC] Got %d releases, running with the first one!' % len(releases))
+            self.interface.queue_to_identify_interface.send('MULTIPLE_RELEASES')
+            self.interface.queue_to_identify_interface.send(releases)
 
-        ## XXX Use the first release now, need to prompt in the future
-        release = releases[0]
+            rel_num = self.interface.queue_to_identify_interface.recv()
+        else:
+            rel_num = 0
+
+        ## Which release do we want?
+        release = releases[rel_num]
 
         ## Disc title
         title = release['title'].encode('utf-8')
@@ -188,7 +196,7 @@ class Identify(object):
         for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_tuple = TrackTuple(disc_id=disc_id, artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track['recording']['title'], disc_num=disc_num, disc_count=disc_count, media_name=media_name)
+            track_tuple = TrackTuple(disc_id=disc_id, release_id=release['id'], artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track['recording']['title'], disc_num=disc_num, disc_count=disc_count, media_name=media_name)
 
             track_tuples.append(track_tuple)
 
