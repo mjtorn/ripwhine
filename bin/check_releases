@@ -44,7 +44,7 @@ def print_releases(disc_id, releases):
         print '   [%s] %s (%d disc)' % (year, title, medium_count)
 
         for label in labels:
-            cat_no = label['catalog-number']
+            cat_no = label.get('catalog-number', 'UNKNOWN')
             label_name = label['label']['name']
             print '   %s (%s)' % (label_name, cat_no)
 
