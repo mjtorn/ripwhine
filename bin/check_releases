@@ -80,6 +80,7 @@ def check_release(cur_dir, files):
         poll = select.poll()
         poll.register(sys.stdin, select.POLLIN)
         id_path = os.path.join(cur_dir, ID_FILE)
+        rel_path = os.path.join(cur_dir, REL_FILE)
         with open(id_path, 'rb') as id_f:
             disc_id = id_f.read().strip()
             print disc_id
@@ -97,6 +98,12 @@ def check_release(cur_dir, files):
                     continue
 
                 max_choice = print_releases(releases)
+
+            release = releases[input_choice - 1]
+            rel_id = release['id']
+            with open(rel_path, 'wb') as rel_f:
+                rel_f.write('%s\n' % rel_id)
+                print 'Wrote %s > %s' % (rel_id, rel_path)
 
 def main(path):
     old_settings = termios.tcgetattr(sys.stdin)
