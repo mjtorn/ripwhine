@@ -82,7 +82,7 @@ class Identify(object):
         logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
 
         ## XXX: The library doesn't understand a tuple here
-        includes = ['artist-credits', 'release-rels', 'recordings']
+        includes = ['artist-credits', 'labels', 'release-rels', 'recordings']
         try:
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
         except musicbrainzngs.ResponseError, e:
@@ -124,7 +124,10 @@ class Identify(object):
 
             return
         elif len(releases) > 1:
-            logger.warn('[DISC] Got %d releases, running with the first one!' % len(releases))
+            self.interface.queue_to_identify_interface.send('MULTIPLE_RELEASES')
+            self.interface.queue_to_identify_interface.send(releases)
+
+            rel_num = self.interface.queue_to_identify_interface.recv()
 
         ## XXX Use the first release now, need to prompt in the future
         release = releases[0]
