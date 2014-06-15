@@ -72,13 +72,14 @@ def read_input(poll):
 
     return None
 
-def check_release(*args):
-    state, dir, files = args
+def check_release(cur_dir, files):
+    """Check the directory and files for ids and releases
+    """
 
     if ID_FILE in files and not REL_FILE in files:
         poll = select.poll()
         poll.register(sys.stdin, select.POLLIN)
-        id_path = os.path.join(dir, ID_FILE)
+        id_path = os.path.join(cur_dir, ID_FILE)
         with open(id_path, 'rb') as id_f:
             disc_id = id_f.read().strip()
             print disc_id
@@ -104,10 +105,12 @@ def main(path):
     try:
         tty.setcbreak(sys.stdin.fileno())
 
-        state = {}
-
         try:
-            os.path.walk(path, check_release, state)
+            for cur_dir, dirs, files in os.walk(path):
+                dirs.sort()
+                files.sort()
+
+                check_release(cur_dir, files)
         except StopIteration, e:
             print e
 
