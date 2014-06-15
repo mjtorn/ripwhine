@@ -16,9 +16,11 @@ REL_FILE = 'musicbrainz.release'
 
 INCLUDES = ['artist-credits', 'labels', 'release-rels', 'recordings']
 
+DISC_ID_URL = 'http://musicbrainz.org/cdtoc/%s'
+
 musicbrainzngs.set_useragent('Ripwhine Release Checker', __version__, 'https://github.com/mjtorn/ripwhine/')
 
-def print_releases(releases):
+def print_releases(disc_id, releases):
     """Print a kind of menu
     """
 
@@ -83,12 +85,12 @@ def check_release(cur_dir, files):
         rel_path = os.path.join(cur_dir, REL_FILE)
         with open(id_path, 'rb') as id_f:
             disc_id = id_f.read().strip()
-            print disc_id
+            print '%s @ %s' % (cur_dir, DISC_ID_URL % disc_id)
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=INCLUDES)
 
             releases = data['disc']['release-list']
 
-            max_choice = print_releases(releases)
+            max_choice = print_releases(disc_id, releases)
 
             input_choice = -1
             while input_choice < 1 or input_choice > max_choice:
@@ -97,7 +99,7 @@ def check_release(cur_dir, files):
                 if input_choice is None:
                     continue
 
-                max_choice = print_releases(releases)
+                max_choice = print_releases(disc_id, releases)
 
             release = releases[input_choice - 1]
             rel_id = release['id']
