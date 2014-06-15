@@ -173,10 +173,10 @@ class Interface(object):
         if dict(self.items).has_key(action):
             retval = dict(self.items)[action][1](self)
             if retval is not None:
-                return retval
+                ## Usually we want the default menu
+                self.items = copy.copy(self.items_bkp)
 
-        ## Usually we want the default menu
-        self.items = copy.copy(self.items_bkp)
+                return retval
 
         return True
 
@@ -187,6 +187,8 @@ class Interface(object):
 
         # Remember, action is list index + 1
         self.queue_to_identify.send(self.action - 1)
+
+        return self.action
 
     def run(self):
         """Work-horse, nay, pwny
