@@ -29,7 +29,7 @@ DEVICE = '/dev/cdrom'
 
 ## Large tuples are terrible to deal with
 from collections import namedtuple
-TrackTuple = namedtuple('TrackTuple', 'disc_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+TrackTuple = namedtuple('TrackTuple', 'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
 
 class Identify(object):
     """Process persisting to do identifys on command
@@ -196,7 +196,7 @@ class Identify(object):
         for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_tuple = TrackTuple(disc_id=disc_id, artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track['recording']['title'], disc_num=disc_num, disc_count=disc_count, media_name=media_name)
+            track_tuple = TrackTuple(disc_id=disc_id, release_id=release['id'], artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track['recording']['title'], disc_num=disc_num, disc_count=disc_count, media_name=media_name)
 
             track_tuples.append(track_tuple)
 
