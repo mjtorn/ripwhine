@@ -33,6 +33,7 @@ def print_releases(disc_id, releases):
         medium_count = release['medium-count']
         rel_events = release['release-event-list']
         title = release['title']
+        barcode = release.get('barcode', 'XXXX')
         date = release.get('date', None)
         if date is not None:
             year = date.split('-')[0]
@@ -41,7 +42,7 @@ def print_releases(disc_id, releases):
 
         print '%d) %s' % (choice, rel_id)
         print '   %s' % (artist_credit,)
-        print '   [%s] %s (%d disc)' % (year, title, medium_count)
+        print '   [%s] %s (%d disc) %s' % (year, title, medium_count, barcode)
 
         for label in labels:
             cat_no = label.get('catalog-number', 'UNKNOWN')
