@@ -86,7 +86,7 @@ class Rip(object):
         ## Maybe I could clean up half-rips but do not care
         if not os.path.exists(path_to_disc):
             os.mkdir(path_to_disc)
-            os.symlink(path_to_disc, symlink_to_disc)
+            os.symlink(year_disc, symlink_to_disc)
             logger.info('Created %s' % path_to_disc)
 
         ## Create a file with the mbid used
