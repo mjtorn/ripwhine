@@ -31,7 +31,7 @@ def print_releases(disc_id, releases):
         artist_credit = release['artist-credit-phrase']
         labels = release['label-info-list']
         medium_count = release['medium-count']
-        rel_events = release['release-event-list']
+        rel_events = release.get('release-event-list', [])
         title = release['title']
         barcode = release.get('barcode', 'XXXX')
         date = release.get('date', None)
