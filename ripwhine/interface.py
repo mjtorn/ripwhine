@@ -124,12 +124,17 @@ class Interface(object):
             choice = i + 1  # Make it faster to type than 0
 
             rel_id = release['id']
-            artist_credit = release['artist-credit-phrase']
-            labels = release['label-info-list']
-            medium_count = release['medium-count']
-            rel_events = release['release-event-list']
-            title = release['title']
-            date = release.get('date', None)
+            artist_credit = release.get('artist-credit-phrase')
+            labels = release.get('label-info-list')
+
+            if 'medium-count' not in release:
+                medium_count = len(release['medium-list'])
+            else:
+                medium_count = release['medium-count']
+
+            rel_events = release.get('release-event-list', [])
+            title = release.get('title')
+            date = release.get('date')
             if date is not None:
                 year = date.split('-')[0]
             else:
