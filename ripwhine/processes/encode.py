@@ -45,10 +45,10 @@ class Encode(object):
             command = self.interface.queue_to_encode_interface.recv()
             logger.info('Encoder received: %s' % str(command))
 
-            if dict(self.actions).has_key(command):
+            if command in dict(self.actions):
                 try:
                     dict(self.actions)[command]()
-                except Exception, e:
+                except Exception as e:
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
@@ -57,7 +57,7 @@ class Encode(object):
         """
 
         ## Num and name
-        filename = u'%s. %s' % track_data
+        filename = '%s. %s' % track_data
         filename = filename.replace('/', '-')
         filename = filename.encode('utf-8')
 

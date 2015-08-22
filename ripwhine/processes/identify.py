@@ -54,10 +54,10 @@ class Identify(object):
             command = self.interface.queue_to_identify_interface.recv()
             logger.info('Identify received: %s' % command)
 
-            if dict(self.actions).has_key(command):
+            if command in dict(self.actions):
                 try:
                     dict(self.actions)[command]()
-                except Exception, e:
+                except Exception as e:
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
@@ -68,7 +68,7 @@ class Identify(object):
         ## XXX: Do we really need the old library for this?
         try:
             disc = mbdisc.readDisc(deviceName=DEVICE)
-        except mbdisc.DiscError, e:
+        except mbdisc.DiscError as e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
@@ -85,7 +85,7 @@ class Identify(object):
         includes = ['artist-credits', 'labels', 'release-rels', 'recordings']
         try:
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
-        except musicbrainzngs.ResponseError, e:
+        except musicbrainzngs.ResponseError as e:
             ## Fake response to make flow easier
             if e.cause.code == 404:
                 data = {
@@ -96,7 +96,7 @@ class Identify(object):
                 }
             else:
                 raise
-        except Exception, e:
+        except Exception as e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')

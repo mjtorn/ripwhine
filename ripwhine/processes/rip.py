@@ -48,10 +48,10 @@ class Rip(object):
             command = self.interface.queue_to_rip_interface.recv()
             logger.info('Ripper received: %s' % str(command))
 
-            if dict(self.actions).has_key(command):
+            if command in dict(self.actions):
                 try:
                     dict(self.actions)[command]()
-                except Exception, e:
+                except Exception as e:
                     logger.error('[FAIL] %s' % e)
                     logger.error(''.join(traceback.format_exception(*sys.exc_info())))
 
@@ -106,10 +106,10 @@ class Rip(object):
         """
 
         ## Num and name
-        filename = u'%s. %s' % (track_num, track_title.encode('utf-8'))
+        filename = '%s. %s' % (track_num, track_title.encode('utf-8'))
         filename = filename.replace('/', '-')
 
-        filename = u'%s.wav' % filename
+        filename = '%s.wav' % filename
         filename = filename.encode('utf-8')
 
         logger.info('[RIP NAME] File name %d bytes: %s' % (len(filename), filename))
@@ -157,7 +157,7 @@ class Rip(object):
         ## Is the destination safe?
         try:
             self.check_destination(track_tuples[0])
-        except IOError, e:
+        except IOError as e:
             logger.error('[FAIL] %s' % e)
             self.interface.queue_to_rip_interface.send('FAILED_RIP')
             return
