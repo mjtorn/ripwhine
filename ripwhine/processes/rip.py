@@ -106,10 +106,10 @@ class Rip(object):
         """
 
         ## Num and name
-        filename = u'%s. %s' % (track_num, track_title)
+        filename = u'%s. %s' % (track_num, track_title.encode('utf-8'))
         filename = filename.replace('/', '-')
 
-        filename = '%s.wav' % filename
+        filename = u'%s.wav' % filename
         filename = filename.encode('utf-8')
 
         logger.info('[RIP NAME] File name %d bytes: %s' % (len(filename), filename))

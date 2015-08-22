@@ -173,6 +173,7 @@ class Identify(object):
             return
 
         artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
+        artist_sort_name = artist_sort_name.encode('utf-8')
 
         ## Media count and name
         disc_num = 1
@@ -202,7 +203,8 @@ class Identify(object):
         for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_tuple = TrackTuple(disc_id=disc_id, release_id=release['id'], artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track['recording']['title'], disc_num=disc_num, disc_count=disc_count, media_name=media_name)
+            track_title = track['recording']['title'].encode('utf-8')
+            track_tuple = TrackTuple(disc_id=disc_id, release_id=release['id'], artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track_title, disc_num=disc_num, disc_count=disc_count, media_name=media_name)
 
             track_tuples.append(track_tuple)
 
