@@ -158,7 +158,7 @@ class Interface(object):
 
             for label in labels:
                 cat_no = label.get('catalog-number', 'UNKNOWN')
-                label_name = label['label']['name']
+                label_name = label.get('label', {}).get('name', 'NO_LABEL')
                 item = '%s   %s (%s)\n' % (item, label_name, cat_no)
 
             for rel_event in rel_events:
