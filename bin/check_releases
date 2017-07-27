@@ -31,19 +31,19 @@ def print_releases(disc_id, releases):
         rel_id = release['id']
         artist_credit = release['artist-credit-phrase']
         labels = release['label-info-list']
-        medium_count = release['medium-count']
+        medium_count = release.get('medium-count', 'NO_MEDIUM_COUNT')
         rel_events = release.get('release-event-list', [])
         title = release['title']
-        barcode = release.get('barcode', 'XXXX')
+        barcode = release.get('barcode', 'NO_BARCODE')
         date = release.get('date', None)
         if date is not None:
             year = date.split('-')[0]
         else:
-            year = 'XXXX'
+            year = 'NO_YEAR'
 
         print('%d) %s' % (choice, rel_id))
         print('   %s' % (artist_credit,))
-        print('   [%s] %s (%d disc) %s' % (year, title, medium_count, barcode))
+        print('   [%s] %s (%s disc) %s' % (year, title, medium_count, barcode))
 
         for label in labels:
             cat_no = label.get('catalog-number', 'UNKNOWN')
@@ -58,6 +58,8 @@ def print_releases(disc_id, releases):
         ## :D
         # import pprint; pprint.pprint(release)
         # sys.exit(1)
+
+    print('q) quit')
 
     return choice
 
