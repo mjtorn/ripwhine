@@ -59,6 +59,7 @@ def print_releases(disc_id, releases):
         # import pprint; pprint.pprint(release)
         # sys.exit(1)
 
+    print('s) skip')
     print('q) quit')
 
     return choice
@@ -76,12 +77,15 @@ def read_input(poll):
         return int(action)
     elif action == 'q':
         raise StopIteration('QUIT!')
+    elif len(action) == 1:
+        return action
 
     return None
 
 
 def check_release(cur_dir, files):
-    """Check the directory and files for ids and releases
+    """Check the directory and files for ids and releases.
+    Return whether or not we skipped this.
     """
 
     if ID_FILE in files and REL_FILE not in files:
@@ -104,6 +108,8 @@ def check_release(cur_dir, files):
 
                 if input_choice is None:
                     continue
+                elif input_choice == 's':
+                    return True
 
                 max_choice = print_releases(disc_id, releases)
 
@@ -112,6 +118,8 @@ def check_release(cur_dir, files):
             with open(rel_path, 'wb') as rel_f:
                 rel_f.write('%s\n' % rel_id)
                 print('Wrote %s > %s\n' % (rel_id, rel_path))
+
+    return False
 
 
 def main(path):
@@ -124,7 +132,9 @@ def main(path):
                 dirs.sort()
                 files.sort()
 
-                check_release(cur_dir, files)
+                skipped = check_release(cur_dir, files)
+                if skipped:
+                    continue
         except StopIteration as e:
             print(e)
 
