@@ -4,7 +4,6 @@
 from ripwhine import __version__
 
 import musicbrainzngs
-
 import os
 import select
 import sys
@@ -20,6 +19,7 @@ DISC_ID_URL = 'http://musicbrainz.org/cdtoc/%s'
 
 musicbrainzngs.set_useragent('Ripwhine Release Checker', __version__, 'https://github.com/mjtorn/ripwhine/')
 
+
 def print_releases(disc_id, releases):
     """Print a kind of menu
     """
@@ -30,41 +30,45 @@ def print_releases(disc_id, releases):
         rel_id = release['id']
         artist_credit = release['artist-credit-phrase']
         labels = release['label-info-list']
-        medium_count = release['medium-count']
+        medium_count = release.get('medium-count', 'NO_MEDIUM_COUNT')
         rel_events = release.get('release-event-list', [])
         title = release['title']
-        barcode = release.get('barcode', 'XXXX')
+        barcode = release.get('barcode', 'NO_BARCODE')
         date = release.get('date', None)
         if date is not None:
             year = date.split('-')[0]
         else:
-            year = 'XXXX'
+            year = 'NO_YEAR'
 
-        print '%d) %s' % (choice, rel_id)
-        print '   %s' % (artist_credit,)
-        print '   [%s] %s (%d disc) %s' % (year, title, medium_count, barcode)
+        print('%d) %s' % (choice, rel_id))
+        print('   %s' % (artist_credit,))
+        print('   [%s] %s (%s disc) %s' % (year, title, medium_count, barcode))
 
         for label in labels:
             cat_no = label.get('catalog-number', 'UNKNOWN')
             label_name = label['label']['name']
-            print '   %s (%s)' % (label_name, cat_no)
+            print('   %s (%s)' % (label_name, cat_no))
 
         for rel_event in rel_events:
             area = rel_event.get('area', None)
             if area is not None:
-                print '   %s' % area['name']
+                print('   %s' % area['name'])
 
         ## :D
         # import pprint; pprint.pprint(release)
         # sys.exit(1)
 
+    print('s) skip')
+    print('q) quit')
+
     return choice
+
 
 def read_input(poll):
     """Get the release number from the user. Returns None if more prompting needed
     """
 
-    print '>>> '
+    print('>>> ')
     poll.poll()
     action = sys.stdin.read(1)
 
@@ -72,21 +76,25 @@ def read_input(poll):
         return int(action)
     elif action == 'q':
         raise StopIteration('QUIT!')
+    elif len(action) == 1:
+        return action
 
     return None
 
+
 def check_release(cur_dir, files):
-    """Check the directory and files for ids and releases
+    """Check the directory and files for ids and releases.
+    Return whether or not we skipped this.
     """
 
-    if ID_FILE in files and not REL_FILE in files:
+    if ID_FILE in files and REL_FILE not in files:
         poll = select.poll()
         poll.register(sys.stdin, select.POLLIN)
         id_path = os.path.join(cur_dir, ID_FILE)
         rel_path = os.path.join(cur_dir, REL_FILE)
         with open(id_path, 'rb') as id_f:
             disc_id = id_f.read().strip()
-            print '%s @ %s' % (cur_dir, DISC_ID_URL % disc_id)
+            print('%s @ %s' % (cur_dir, DISC_ID_URL % disc_id))
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=INCLUDES)
 
             releases = data['disc']['release-list']
@@ -99,6 +107,8 @@ def check_release(cur_dir, files):
 
                 if input_choice is None:
                     continue
+                elif input_choice == 's':
+                    return True
 
                 max_choice = print_releases(disc_id, releases)
 
@@ -106,7 +116,10 @@ def check_release(cur_dir, files):
             rel_id = release['id']
             with open(rel_path, 'wb') as rel_f:
                 rel_f.write('%s\n' % rel_id)
-                print 'Wrote %s > %s\n' % (rel_id, rel_path)
+                print('Wrote %s > %s\n' % (rel_id, rel_path))
+
+    return False
+
 
 def main(path):
     old_settings = termios.tcgetattr(sys.stdin)
@@ -118,14 +131,17 @@ def main(path):
                 dirs.sort()
                 files.sort()
 
-                check_release(cur_dir, files)
-        except StopIteration, e:
-            print e
+                skipped = check_release(cur_dir, files)
+                if skipped:
+                    continue
+        except StopIteration as e:
+            print(e)
 
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1]))
