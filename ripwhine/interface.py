@@ -185,7 +185,7 @@ class Interface(object):
                 return True
 
         ## Call our action, giving ourself as interface argument
-        if dict(self.items).has_key(action):
+        if action in dict(self.items):
             retval = dict(self.items)[action][1](self)
             if retval is not None:
                 ## Usually we want the default menu
