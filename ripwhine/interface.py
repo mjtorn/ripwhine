@@ -84,9 +84,9 @@ class Interface(object):
         fail_str = 'Will %sfail cdparanoia on bad rip'
 
         if self.fail:
-            print fail_str % ''
+            print(fail_str % '')
         else:
-            print fail_str % 'not '
+            print(fail_str % 'not ')
 
         if self.track_tuples:
             # Use the first one for disc info
@@ -104,16 +104,16 @@ class Interface(object):
 
             heading = '%s: %s - %s (%s)' % (track_tuple.disc_id, track_tuple.artist, disc, track_tuple.year)
 
-            print heading
+            print(heading)
         else:
-            print '*** NO DISC ***'
-            print self.info_text
-            print '***************'
+            print('*** NO DISC ***')
+            print(self.info_text)
+            print('***************')
 
-        print
+        print()
 
         for item in self.items:
-            print '%s. %s' % (item[0], item[1][0])
+            print('%s. %s' % (item[0], item[1][0]))
 
     def set_releases(self, releases):
         """Deal with having multiple releases
@@ -172,7 +172,7 @@ class Interface(object):
         """Read user input, validate, execute. Return True if more loops required
         """
 
-        print '>>> '
+        print('>>> ')
         poll.poll()
         self.action = action = sys.stdin.read(1)
 
