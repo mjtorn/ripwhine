@@ -1,20 +1,16 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
-import musicbrainz2.disc as mbdisc
+from .. import __version__
+## Large tuples are terrible to deal with
+from collections import namedtuple
 
 import logging
-
 import multiprocessing
-
+import musicbrainz2.disc as mbdisc
 import musicbrainzngs
-
 import subprocess
-
 import sys
-
 import traceback
-
-from .. import __version__
 
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
@@ -27,8 +23,6 @@ musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn
 ## Maybe this should be a configurable
 DEVICE = '/dev/cdrom'
 
-## Large tuples are terrible to deal with
-from collections import namedtuple
 TrackTuple = namedtuple('TrackTuple', 'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
 
 class Identify(object):
@@ -220,4 +214,3 @@ def start_identify_process(interface):
     return p
 
 # EOF
-

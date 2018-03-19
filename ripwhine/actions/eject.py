@@ -1,9 +1,7 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import subprocess
 
 logger = multiprocessing.get_logger()
@@ -41,4 +39,3 @@ def eject(interface):
     p.run()
 
 # EOF
-

@@ -1,15 +1,10 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import os
-
 import subprocess
-
 import sys
-
 import traceback
 
 logger = multiprocessing.get_logger()
@@ -126,4 +121,3 @@ def start_encode_process(interface):
     return p
 
 # EOF
-

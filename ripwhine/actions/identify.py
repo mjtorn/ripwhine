@@ -1,7 +1,6 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
 
 logger = multiprocessing.get_logger()
@@ -16,4 +15,3 @@ def identify(interface):
     interface.queue_to_identify.send('IDENTIFY')
 
 # EOF
-

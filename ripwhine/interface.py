@@ -3,19 +3,12 @@
 from ripwhine import actions, processes
 
 import copy
-
-import multiprocessing
-
 import logging
-
+import multiprocessing
 import os
-
 import select
-
 import sys
-
 import termios
-
 import tty
 
 logger = multiprocessing.get_logger()
@@ -264,4 +257,3 @@ class Interface(object):
         self.identify_process.terminate()
 
 # EOF
-

@@ -1,7 +1,6 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
 
 logger = multiprocessing.get_logger()
@@ -21,4 +20,3 @@ def start_rip(interface):
         interface.queue_to_rip.send(interface.track_tuples)
 
 # EOF
-

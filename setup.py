@@ -3,11 +3,9 @@
 from setuptools import setup
 
 import glob
-
 import os
-import sys
-
 import ripwhine
+import sys
 
 NAME = 'ripwhine'
 VERSION = ripwhine.__version__ # Maybe parse from git tag some day
@@ -38,4 +36,3 @@ setup(
 )
 
 # EOF
-

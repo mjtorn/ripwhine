@@ -1,9 +1,7 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import time
 
 logger = multiprocessing.get_logger()
@@ -27,4 +25,3 @@ def sleep_process(interface):
     p.start()
 
 # EOF
-
