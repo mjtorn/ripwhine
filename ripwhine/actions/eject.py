@@ -13,6 +13,7 @@ DEVICE = '/dev/cdrom'
 
 EJECT_CMD = ['eject']
 
+
 def do_eject(interface):
     """Process target for ejecting
     interface passed for state
@@ -30,6 +31,7 @@ def do_eject(interface):
         interface.ejected = not interface.ejected
     else:
         logger.info('[EJECT] %s' % retval)
+
 
 def eject(interface):
     """Spawn it

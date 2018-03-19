@@ -14,6 +14,7 @@ if not logger.handlers:
 
 ENCODE_CMD = ['flac', '--best', '-o']
 
+
 class Encode(object):
     """Process persisting to do encodes on command
     """
@@ -111,6 +112,7 @@ class Encode(object):
             logger.info('[SUCCESS] %s. %s' % track_data)
 
         self.interface.queue_to_encode_interface.send('FINISHED_ENCODE')
+
 
 def start_encode_process(interface):
     encode = Encode(interface)

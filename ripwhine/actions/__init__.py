@@ -11,6 +11,7 @@ import sys
 import termios
 import tty
 
+
 def change_dir(interface):
     """Set a new destination
     """
@@ -38,7 +39,7 @@ def change_dir(interface):
 
             if ord(c) == 10 or ord(c) == 13:
                 break
-            elif ord(c) == 8: # backspace
+            elif ord(c) == 8:  # backspace
                 ## Some day maybe put a space under the cursor
                 destination_dir = destination_dir[:-1]
             else:

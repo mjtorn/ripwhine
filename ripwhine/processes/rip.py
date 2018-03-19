@@ -17,6 +17,7 @@ CDPARANOIA_BINARY = 'cdparanoia'
 ## Because it's not autosensed by cdparanoia for whatever reason
 DEVICE = '/dev/cdrom'
 
+
 class Rip(object):
     """Process persisting to do rips on command
     """
@@ -171,6 +172,7 @@ class Rip(object):
             self.interface.queue_to_encode.send((self.path_to_disc, (track.formatted_track_num, track.track_title)))
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
+
 
 def start_rip_process(interface):
     rip = Rip(interface)

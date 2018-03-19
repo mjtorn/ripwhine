@@ -18,6 +18,7 @@ if not logger.handlers:
 
 DEFAULT_DIR = os.path.join(os.path.expanduser('~'), 'music')
 
+
 class Interface(object):
     """Handles interfacing with the user
     """
@@ -147,7 +148,7 @@ class Interface(object):
             if media_name is not None:
                 item = '%s including %s\n' % (item, media_name)
             else:
-                item = '%s\n'% item
+                item = '%s\n' % item
 
             for label in labels:
                 cat_no = label.get('catalog-number', 'UNKNOWN')

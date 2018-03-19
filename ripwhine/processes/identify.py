@@ -23,7 +23,10 @@ musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn
 ## Maybe this should be a configurable
 DEVICE = '/dev/cdrom'
 
-TrackTuple = namedtuple('TrackTuple', 'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+TrackTuple = namedtuple(
+    'TrackTuple',
+    'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+
 
 class Identify(object):
     """Process persisting to do identifys on command
@@ -198,12 +201,23 @@ class Identify(object):
             formatted_track_num = '%02d' % int(track['number'])
 
             track_title = track['recording']['title'].encode('utf-8')
-            track_tuple = TrackTuple(disc_id=disc_id, release_id=release['id'], artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track_title, disc_num=disc_num, disc_count=disc_count, media_name=media_name)
+            track_tuple = TrackTuple(
+                disc_id=disc_id,
+                release_id=release['id'],
+                artist=artist_sort_name,
+                year=year,
+                title=title,
+                formatted_track_num=formatted_track_num,
+                track_title=track_title,
+                disc_num=disc_num,
+                disc_count=disc_count,
+                media_name=media_name)
 
             track_tuples.append(track_tuple)
 
         self.interface.queue_to_identify_interface.send('FINISHED_IDENTIFY')
         self.interface.queue_to_identify_interface.send(tuple(track_tuples))
+
 
 def start_identify_process(interface):
     identify = Identify(interface)

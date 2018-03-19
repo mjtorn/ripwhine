@@ -8,6 +8,7 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
+
 def start_rip(interface):
     """Tell ripper process to start doing it
     """
