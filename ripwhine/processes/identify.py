@@ -8,7 +8,6 @@ import logging
 import multiprocessing
 import musicbrainz2.disc as mbdisc
 import musicbrainzngs
-import subprocess
 import sys
 import traceback
 
