@@ -94,7 +94,7 @@ class Interface(object):
                 disc = track_tuple.title
 
             if track_tuple.media_name is not None:
-                disc = '%s %s' % (disc, track_tuple.media_name.encode('utf-8'))
+                disc = '%s %s' % (disc, track_tuple.media_name)
 
             heading = '%s: %s - %s (%s)' % (track_tuple.disc_id, track_tuple.artist, disc, track_tuple.year)
 

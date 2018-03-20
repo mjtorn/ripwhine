@@ -55,7 +55,6 @@ class Encode(object):
         ## Num and name
         filename = '%s. %s' % track_data
         filename = filename.replace('/', '-')
-        filename = filename.encode('utf-8')
 
         bkp_filename = filename
 

@@ -134,7 +134,7 @@ class Identify(object):
         release = releases[rel_num]
 
         ## Disc title
-        title = release['title'].encode('utf-8')
+        title = release['title']
         disambiguation = release.get('disambiguation', None)
         is_remaster = False
         for rel_release in release.get('release-relation-list', ()):
@@ -169,7 +169,7 @@ class Identify(object):
             return
 
         artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
-        artist_sort_name = artist_sort_name.encode('utf-8')
+        artist_sort_name = artist_sort_name
 
         ## Media count and name
         disc_num = 1
@@ -199,7 +199,7 @@ class Identify(object):
         for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_title = track['recording']['title'].encode('utf-8')
+            track_title = track['recording']['title']
             track_tuple = TrackTuple(
                 disc_id=disc_id,
                 release_id=release['id'],

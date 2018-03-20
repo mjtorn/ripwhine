@@ -64,7 +64,7 @@ class Rip(object):
             disc = track_tuple.title
 
         if track_tuple.media_name is not None:
-            disc = '%s %s' % (disc, track_tuple.media_name.encode('utf-8'))
+            disc = '%s %s' % (disc, track_tuple.media_name)
 
         artist = track_tuple.artist.replace('/', '-')
         disc = disc.replace('/', '-')
@@ -102,11 +102,10 @@ class Rip(object):
         """
 
         ## Num and name
-        filename = '%s. %s' % (track_num, track_title.encode('utf-8'))
+        filename = '%s. %s' % (track_num, track_title)
         filename = filename.replace('/', '-')
 
         filename = '%s.wav' % filename
-        filename = filename.encode('utf-8')
 
         logger.info('[RIP NAME] File name %d bytes: %s' % (len(filename), filename))
 
