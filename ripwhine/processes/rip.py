@@ -87,12 +87,12 @@ class Rip(object):
 
         ## Create a file with the mbid used
         f = open(os.path.join(path_to_disc, 'musicbrainz.id'), 'wb')
-        f.write('%s\n' % track_tuple.disc_id)
+        f.write(b'%s\n' % track_tuple.disc_id.encode('utf-8'))
         f.close()
 
         ## And the release
         f = open(os.path.join(path_to_disc, 'musicbrainz.release'), 'wb')
-        f.write('%s\n' % track_tuple.release_id)
+        f.write(b'%s\n' % track_tuple.release_id.encode('utf-8'))
         f.close()
 
         self.path_to_disc = path_to_disc
