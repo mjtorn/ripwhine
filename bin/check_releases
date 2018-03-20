@@ -93,7 +93,7 @@ def check_release(cur_dir, files):
         id_path = os.path.join(cur_dir, ID_FILE)
         rel_path = os.path.join(cur_dir, REL_FILE)
         with open(id_path, 'rb') as id_f:
-            disc_id = id_f.read().strip()
+            disc_id = id_f.read().strip().decode('utf-8')
             print('%s @ %s' % (cur_dir, DISC_ID_URL % disc_id))
             data = musicbrainzngs.get_releases_by_discid(disc_id, includes=INCLUDES)
 
