@@ -1,15 +1,10 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import os
-
 import subprocess
-
 import sys
-
 import traceback
 
 logger = multiprocessing.get_logger()
@@ -18,6 +13,7 @@ if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
 ENCODE_CMD = ['flac', '--best', '-o']
+
 
 class Encode(object):
     """Process persisting to do encodes on command
@@ -59,7 +55,6 @@ class Encode(object):
         ## Num and name
         filename = '%s. %s' % track_data
         filename = filename.replace('/', '-')
-        filename = filename.encode('utf-8')
 
         bkp_filename = filename
 
@@ -117,6 +112,7 @@ class Encode(object):
 
         self.interface.queue_to_encode_interface.send('FINISHED_ENCODE')
 
+
 def start_encode_process(interface):
     encode = Encode(interface)
 
@@ -126,4 +122,3 @@ def start_encode_process(interface):
     return p
 
 # EOF
-

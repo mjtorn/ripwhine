@@ -3,19 +3,12 @@
 from ripwhine import actions, processes
 
 import copy
-
-import multiprocessing
-
 import logging
-
+import multiprocessing
 import os
-
 import select
-
 import sys
-
 import termios
-
 import tty
 
 logger = multiprocessing.get_logger()
@@ -24,6 +17,7 @@ if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
 DEFAULT_DIR = os.path.join(os.path.expanduser('~'), 'music')
+
 
 class Interface(object):
     """Handles interfacing with the user
@@ -84,9 +78,9 @@ class Interface(object):
         fail_str = 'Will %sfail cdparanoia on bad rip'
 
         if self.fail:
-            print fail_str % ''
+            print(fail_str % '')
         else:
-            print fail_str % 'not '
+            print(fail_str % 'not ')
 
         if self.track_tuples:
             # Use the first one for disc info
@@ -100,20 +94,20 @@ class Interface(object):
                 disc = track_tuple.title
 
             if track_tuple.media_name is not None:
-                disc = '%s %s' % (disc, track_tuple.media_name.encode('utf-8'))
+                disc = '%s %s' % (disc, track_tuple.media_name)
 
             heading = '%s: %s - %s (%s)' % (track_tuple.disc_id, track_tuple.artist, disc, track_tuple.year)
 
-            print heading
+            print(heading)
         else:
-            print '*** NO DISC ***'
-            print self.info_text
-            print '***************'
+            print('*** NO DISC ***')
+            print(self.info_text)
+            print('***************')
 
-        print
+        print()
 
         for item in self.items:
-            print '%s. %s' % (item[0], item[1][0])
+            print('%s. %s' % (item[0], item[1][0]))
 
     def set_releases(self, releases):
         """Deal with having multiple releases
@@ -154,7 +148,7 @@ class Interface(object):
             if media_name is not None:
                 item = '%s including %s\n' % (item, media_name)
             else:
-                item = '%s\n'% item
+                item = '%s\n' % item
 
             for label in labels:
                 cat_no = label.get('catalog-number', 'UNKNOWN')
@@ -172,7 +166,7 @@ class Interface(object):
         """Read user input, validate, execute. Return True if more loops required
         """
 
-        print '>>> '
+        print('>>> ')
         poll.poll()
         self.action = action = sys.stdin.read(1)
 
@@ -185,7 +179,7 @@ class Interface(object):
                 return True
 
         ## Call our action, giving ourself as interface argument
-        if dict(self.items).has_key(action):
+        if action in dict(self.items):
             retval = dict(self.items)[action][1](self)
             if retval is not None:
                 ## Usually we want the default menu
@@ -264,4 +258,3 @@ class Interface(object):
         self.identify_process.terminate()
 
 # EOF
-

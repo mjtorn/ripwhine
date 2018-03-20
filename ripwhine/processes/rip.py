@@ -1,15 +1,10 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import os
-
 import subprocess
-
 import sys
-
 import traceback
 
 logger = multiprocessing.get_logger()
@@ -21,6 +16,7 @@ CDPARANOIA_BINARY = 'cdparanoia'
 
 ## Because it's not autosensed by cdparanoia for whatever reason
 DEVICE = '/dev/cdrom'
+
 
 class Rip(object):
     """Process persisting to do rips on command
@@ -68,7 +64,7 @@ class Rip(object):
             disc = track_tuple.title
 
         if track_tuple.media_name is not None:
-            disc = '%s %s' % (disc, track_tuple.media_name.encode('utf-8'))
+            disc = '%s %s' % (disc, track_tuple.media_name)
 
         artist = track_tuple.artist.replace('/', '-')
         disc = disc.replace('/', '-')
@@ -91,12 +87,12 @@ class Rip(object):
 
         ## Create a file with the mbid used
         f = open(os.path.join(path_to_disc, 'musicbrainz.id'), 'wb')
-        f.write('%s\n' % track_tuple.disc_id)
+        f.write(b'%s\n' % track_tuple.disc_id.encode('utf-8'))
         f.close()
 
         ## And the release
         f = open(os.path.join(path_to_disc, 'musicbrainz.release'), 'wb')
-        f.write('%s\n' % track_tuple.release_id)
+        f.write(b'%s\n' % track_tuple.release_id.encode('utf-8'))
         f.close()
 
         self.path_to_disc = path_to_disc
@@ -106,11 +102,10 @@ class Rip(object):
         """
 
         ## Num and name
-        filename = '%s. %s' % (track_num, track_title.encode('utf-8'))
+        filename = '%s. %s' % (track_num, track_title)
         filename = filename.replace('/', '-')
 
         filename = '%s.wav' % filename
-        filename = filename.encode('utf-8')
 
         logger.info('[RIP NAME] File name %d bytes: %s' % (len(filename), filename))
 
@@ -177,6 +172,7 @@ class Rip(object):
 
         self.interface.queue_to_rip_interface.send('FINISHED_RIP')
 
+
 def start_rip_process(interface):
     rip = Rip(interface)
 
@@ -186,4 +182,3 @@ def start_rip_process(interface):
     return p
 
 # EOF
-

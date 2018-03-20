@@ -1,15 +1,14 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import time
 
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
+
 
 def do_sleep():
     """Process target for sleeping
@@ -19,6 +18,7 @@ def do_sleep():
     time.sleep(1)
     logger.info('Slept')
 
+
 def sleep_process(interface):
     """Spawn it
     """
@@ -27,4 +27,3 @@ def sleep_process(interface):
     p.start()
 
 # EOF
-

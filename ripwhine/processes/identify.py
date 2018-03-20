@@ -1,20 +1,15 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
-import musicbrainz2.disc as mbdisc
-
-import logging
-
-import multiprocessing
-
-import musicbrainzngs
-
-import subprocess
-
-import sys
-
-import traceback
-
 from .. import __version__
+## Large tuples are terrible to deal with
+from collections import namedtuple
+
+import discid
+import logging
+import multiprocessing
+import musicbrainzngs
+import sys
+import traceback
 
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
@@ -27,9 +22,10 @@ musicbrainzngs.set_useragent('Ripwhine', __version__, 'https://github.com/mjtorn
 ## Maybe this should be a configurable
 DEVICE = '/dev/cdrom'
 
-## Large tuples are terrible to deal with
-from collections import namedtuple
-TrackTuple = namedtuple('TrackTuple', 'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+TrackTuple = namedtuple(
+    'TrackTuple',
+    'disc_id release_id artist year title formatted_track_num track_title disc_num disc_count media_name')
+
 
 class Identify(object):
     """Process persisting to do identifys on command
@@ -65,32 +61,28 @@ class Identify(object):
         """Drrn drrn
         """
 
-        ## XXX: Do we really need the old library for this?
         try:
-            disc = mbdisc.readDisc(deviceName=DEVICE)
-        except mbdisc.DiscError as e:
+            disc = discid.read(DEVICE)
+        except discid.disc.DiscError as e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
-
             return
 
-        disc_id = disc.getId()
-        submission_url = mbdisc.getSubmissionUrl(disc)
-        logger.info('[URL] %s' % submission_url)
+        logger.info('[URL] %s' % disc.submission_url)
 
-        logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
+        logger.info('[SUCCESS] Identified disc as: %s' % disc.id)
 
         ## XXX: The library doesn't understand a tuple here
         includes = ['artist-credits', 'labels', 'release-rels', 'recordings']
         try:
-            data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
+            data = musicbrainzngs.get_releases_by_discid(disc.id, includes=includes)
         except musicbrainzngs.ResponseError as e:
             ## Fake response to make flow easier
             if e.cause.code == 404:
                 data = {
                     'disc': {
-                        'id': disc_id,
+                        'id': disc.id,
                         'release-list': []
                     }
                 }
@@ -123,7 +115,7 @@ class Identify(object):
         if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
-            self.interface.queue_to_identify_interface.send(submission_url)
+            self.interface.queue_to_identify_interface.send(disc.submission_url)
 
             return
         elif len(releases) > 1:
@@ -138,7 +130,7 @@ class Identify(object):
         release = releases[rel_num]
 
         ## Disc title
-        title = release['title'].encode('utf-8')
+        title = release['title']
         disambiguation = release.get('disambiguation', None)
         is_remaster = False
         for rel_release in release.get('release-relation-list', ()):
@@ -173,7 +165,7 @@ class Identify(object):
             return
 
         artist_sort_name = release['artist-credit'][0]['artist']['sort-name']
-        artist_sort_name = artist_sort_name.encode('utf-8')
+        artist_sort_name = artist_sort_name
 
         ## Media count and name
         disc_num = 1
@@ -190,7 +182,7 @@ class Identify(object):
                     media_name = medium['title']
                 else:
                     media_name = None
-                if disc_id in [d['id'] for d in medium['disc-list']]:
+                if disc.id in [d['id'] for d in medium['disc-list']]:
                     disc_num = medium_n + 1
                     break
 
@@ -203,13 +195,24 @@ class Identify(object):
         for track in release['medium-list'][medium_n]['track-list']:
             formatted_track_num = '%02d' % int(track['number'])
 
-            track_title = track['recording']['title'].encode('utf-8')
-            track_tuple = TrackTuple(disc_id=disc_id, release_id=release['id'], artist=artist_sort_name, year=year, title=title, formatted_track_num=formatted_track_num, track_title=track_title, disc_num=disc_num, disc_count=disc_count, media_name=media_name)
+            track_title = track['recording']['title']
+            track_tuple = TrackTuple(
+                disc_id=disc.id,
+                release_id=release['id'],
+                artist=artist_sort_name,
+                year=year,
+                title=title,
+                formatted_track_num=formatted_track_num,
+                track_title=track_title,
+                disc_num=disc_num,
+                disc_count=disc_count,
+                media_name=media_name)
 
             track_tuples.append(track_tuple)
 
         self.interface.queue_to_identify_interface.send('FINISHED_IDENTIFY')
         self.interface.queue_to_identify_interface.send(tuple(track_tuples))
+
 
 def start_identify_process(interface):
     identify = Identify(interface)
@@ -220,4 +223,3 @@ def start_identify_process(interface):
     return p
 
 # EOF
-

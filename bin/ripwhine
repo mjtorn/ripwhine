@@ -1,17 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8 filetype=python
+
+from ripwhine.interface import Interface
 
 import sys
 
-from ripwhine.interface import Interface
 
 def main(args):
     interface = Interface()
     interface.run()
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
 
 # EOF
-

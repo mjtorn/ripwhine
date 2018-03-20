@@ -1,9 +1,7 @@
 # vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
 
 import logging
-
 import multiprocessing
-
 import subprocess
 
 logger = multiprocessing.get_logger()
@@ -14,6 +12,7 @@ if not logger.handlers:
 DEVICE = '/dev/cdrom'
 
 EJECT_CMD = ['eject']
+
 
 def do_eject(interface):
     """Process target for ejecting
@@ -33,6 +32,7 @@ def do_eject(interface):
     else:
         logger.info('[EJECT] %s' % retval)
 
+
 def eject(interface):
     """Spawn it
     """
@@ -41,4 +41,3 @@ def eject(interface):
     p.run()
 
 # EOF
-
