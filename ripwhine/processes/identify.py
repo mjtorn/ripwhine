@@ -4,9 +4,9 @@ from .. import __version__
 ## Large tuples are terrible to deal with
 from collections import namedtuple
 
+import discid
 import logging
 import multiprocessing
-import musicbrainz2.disc as mbdisc
 import musicbrainzngs
 import sys
 import traceback
@@ -61,32 +61,28 @@ class Identify(object):
         """Drrn drrn
         """
 
-        ## XXX: Do we really need the old library for this?
         try:
-            disc = mbdisc.readDisc(deviceName=DEVICE)
-        except mbdisc.DiscError as e:
+            disc = discid.read(DEVICE)
+        except discid.disc.DiscError as e:
             logger.error('[FAIL] %s' % e)
             logger.error(''.join(traceback.format_exception(*sys.exc_info())))
             self.interface.queue_to_identify_interface.send('FAILED_IDENTIFY')
-
             return
 
-        disc_id = disc.getId()
-        submission_url = mbdisc.getSubmissionUrl(disc)
-        logger.info('[URL] %s' % submission_url)
+        logger.info('[URL] %s' % disc.submission_url)
 
-        logger.info('[SUCCESS] Identified disc as: %s' % disc_id)
+        logger.info('[SUCCESS] Identified disc as: %s' % disc.id)
 
         ## XXX: The library doesn't understand a tuple here
         includes = ['artist-credits', 'labels', 'release-rels', 'recordings']
         try:
-            data = musicbrainzngs.get_releases_by_discid(disc_id, includes=includes)
+            data = musicbrainzngs.get_releases_by_discid(disc.id, includes=includes)
         except musicbrainzngs.ResponseError as e:
             ## Fake response to make flow easier
             if e.cause.code == 404:
                 data = {
                     'disc': {
-                        'id': disc_id,
+                        'id': disc.id,
                         'release-list': []
                     }
                 }
@@ -119,7 +115,7 @@ class Identify(object):
         if len(releases) == 0:
             self.interface.queue_to_identify_interface.send('NO_DATA')
 
-            self.interface.queue_to_identify_interface.send(submission_url)
+            self.interface.queue_to_identify_interface.send(disc.submission_url)
 
             return
         elif len(releases) > 1:
@@ -186,7 +182,7 @@ class Identify(object):
                     media_name = medium['title']
                 else:
                     media_name = None
-                if disc_id in [d['id'] for d in medium['disc-list']]:
+                if disc.id in [d['id'] for d in medium['disc-list']]:
                     disc_num = medium_n + 1
                     break
 
@@ -201,7 +197,7 @@ class Identify(object):
 
             track_title = track['recording']['title']
             track_tuple = TrackTuple(
-                disc_id=disc_id,
+                disc_id=disc.id,
                 release_id=release['id'],
                 artist=artist_sort_name,
                 year=year,
