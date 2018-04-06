@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(logging.StreamHandler())
 
-DEVICE = '/dev/cdrom'
+DEVICE = '/dev/sr0'
 
 EJECT_CMD = ['eject']
 
