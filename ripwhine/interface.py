@@ -43,6 +43,7 @@ class Interface(object):
             ('e', ('eject', actions.eject)),
             ('f', ('toggle fail', self.toggle_fail)),
             ('p', ('print menu', self.print_menu)),
+            ('t', ('print tracks', self.print_tracks)),
             ('s', ('sleep', actions.sleep_process)),
             ('q', ('exit', lambda interface: False)),
         ]
@@ -101,13 +102,24 @@ class Interface(object):
             print(heading)
         else:
             print('*** NO DISC ***')
-            print(self.info_text)
+            print(self.info_text or 'NO INFO')
             print('***************')
 
         print()
 
         for item in self.items:
             print('%s. %s' % (item[0], item[1][0]))
+
+    @staticmethod
+    def print_tracks(self):
+        """Print the current disc's tracks
+        """
+
+        if self.track_tuples:
+            for track in self.track_tuples:
+                print('%s %s' % (track.formatted_track_num, track.track_title))
+        else:
+            print('*** NO TRACKS ***')
 
     def set_releases(self, releases):
         """Deal with having multiple releases
