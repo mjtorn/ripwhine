@@ -107,9 +107,6 @@ class Identify(object):
                 self.interface.queue_to_identify_interface.send('NO_DATA')
                 return
 
-        # Make the chance slimmer that selecting a release breaks if mb sends results in odd orders
-        releases.sort()
-
         logger.info('[SUCCESS] Got %d releases' % len(releases))
 
         if len(releases) == 0:
